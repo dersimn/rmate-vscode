@@ -154,6 +154,8 @@ class Session extends EventEmitter {
     }));
 
     this.subscriptions.push(vscode.workspace.onDidCloseTextDocument((closedTextDocument : vscode.TextDocument) => {
+      L.trace('onDidCloseTextDocument', closedTextDocument);
+      
       if (closedTextDocument == textDocument) {
         this.closeTimeout  && clearTimeout(this.closeTimeout);
         // If you change the textDocument language, it will close and re-open the same textDocument, so we add

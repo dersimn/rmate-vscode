@@ -15,7 +15,7 @@ class Server extends EventEmitter {
   port : number;
   host : string;
   dontShowPortAlreadyInUseError : boolean = false;
-  defaultSession : Session;
+  sessions : Session[] = [];
 
   constructor() {
     super();
@@ -80,10 +80,7 @@ class Server extends EventEmitter {
     var session = new Session(socket);
     session.send("VSCode " + 1);
 
-    session.on('connect', () => {
-      console.log("connect");
-      this.defaultSession = session;
-    });
+    this.sessions.push(session);
   }
 
   onServerListening(e) {
@@ -138,6 +135,21 @@ class Server extends EventEmitter {
 
     L.debug('isOnline?', this.online);
     return this.online;
+  }
+
+  async closeDocument() {
+    L.trace('closeDocument');
+
+    const openFiles = this.sessions.map(session => {
+      return session.remoteFiles.map(remoteFile => {
+        return remoteFile.localFilePath;
+      });
+    }).flat();
+
+    L.trace('closeDocument > openFiles', openFiles);
+
+    const selected = await vscode.window.showQuickPick(openFiles);
+    L.trace('closeDocument > selected', selected);
   }
 }
 

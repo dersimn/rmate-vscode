@@ -97,6 +97,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.startServer', startServer));
   context.subscriptions.push(vscode.commands.registerCommand('extension.stopServer', stopServer));
+  context.subscriptions.push(vscode.commands.registerCommand('extension.closeDocument', () => {
+    server.closeDocument();
+  }));
 
   changeConfigurationDisposable = vscode.workspace.onDidChangeConfiguration(onConfigurationChange);
 }

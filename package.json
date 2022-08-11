@@ -66,6 +66,10 @@
       {
         "command": "extension.stopServer",
         "title": "Remote: Stop Server"
+      },
+      {
+        "command": "extension.closeDocument",
+        "title": "Remote: Close Document"
       }
     ]
   },
