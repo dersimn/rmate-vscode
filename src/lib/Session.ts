@@ -245,8 +245,12 @@ class Session extends EventEmitter {
 
     if (this.isOnline()) {
       this.online = false;
+
       this.send("close");
       this.send("");
+      
+      this.emit('close');
+
       this.socket.end();
     }
 

@@ -15,7 +15,7 @@ class Server extends EventEmitter {
   port : number;
   host : string;
   dontShowPortAlreadyInUseError : boolean = false;
-  sessions : Session[] = [];
+  sessions = new Set<Session>();
 
   constructor() {
     super();
@@ -80,7 +80,10 @@ class Server extends EventEmitter {
     var session = new Session(socket);
     session.send("VSCode " + 1);
 
-    this.sessions.push(session);
+    this.sessions.add(session);
+    session.on('close', () => {
+      this.sessions.delete(session);
+    });
   }
 
   onServerListening(e) {
@@ -140,10 +143,8 @@ class Server extends EventEmitter {
   async closeDocument() {
     L.trace('closeDocument');
 
-    const openFiles = this.sessions.map(session => {
-      return session.remoteFiles.map(remoteFile => {
-        return remoteFile.localFilePath;
-      });
+    const openFiles = [...this.sessions].map(session => {
+      return session.remoteFiles.map(remoteFile => remoteFile.localFilePath).join(', ');
     }).flat();
 
     L.trace('closeDocument > openFiles', openFiles);
