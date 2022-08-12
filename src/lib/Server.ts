@@ -143,14 +143,22 @@ class Server extends EventEmitter {
   async closeDocument() {
     L.trace('closeDocument');
 
-    const openFiles = [...this.sessions].map(session => {
-      return session.remoteFiles.map(remoteFile => remoteFile.localFilePath).join(', ');
-    }).flat();
+    interface SessionQuickPick extends vscode.QuickPickItem {
+      session: Session
+    }
 
+    const openFiles: Array<SessionQuickPick> = [...this.sessions].map(session => {
+      return {
+        session,
+        label: session.remoteFiles.map(remoteFile => remoteFile.localFilePath.split('/').slice(-1)).join(', '),
+      };
+    });
     L.trace('closeDocument > openFiles', openFiles);
 
     const selected = await vscode.window.showQuickPick(openFiles);
     L.trace('closeDocument > selected', selected);
+
+    selected?.session.close();
   }
 }
 
