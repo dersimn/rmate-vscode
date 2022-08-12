@@ -150,7 +150,7 @@ class Server extends EventEmitter {
     const openFiles: Array<SessionQuickPick> = [...this.sessions].map(session => {
       return {
         session,
-        label: session.remoteFiles.map(remoteFile => remoteFile.localFilePath.split('/').slice(-1)).join(', '),
+        label: session.remoteFiles.map(remoteFile => remoteFile.getRemoteBaseName()).join(', '),
       };
     });
     L.trace('closeDocument > openFiles', openFiles);
