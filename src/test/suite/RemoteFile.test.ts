@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import RemoteFile from '../src/lib/RemoteFile';
+import RemoteFile from '../../lib/RemoteFile';
 
 suite("Command Tests", () => {
   test("constructor", () => {

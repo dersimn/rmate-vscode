@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import Command from '../src/lib/Command';
+import Command from '../../lib/Command';
 
 suite("Command Tests", () => {
 
