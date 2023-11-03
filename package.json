@@ -14,7 +14,7 @@
     "url": "https://github.com/rafaelmaiolla/remote-vscode/issues"
   },
   "engines": {
-    "vscode": "^1.13.0"
+    "vscode": "^1.84.0"
   },
   "keywords": [
     "rmate",
@@ -30,7 +30,7 @@
     "onCommand:extension.startServer",
     "onCommand:extension.stopServer"
   ],
-  "main": "./out/src/extension",
+  "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
       "type": "object",
@@ -74,19 +74,32 @@
     ]
   },
   "scripts": {
-    "test": "node ./node_modules/vscode/bin/test",
-    "vscode:prepublish": "tsc -p ./",
-    "compile": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "lint": "eslint src"
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/fs-extra": "5.0.4",
     "@types/log4js": "2.3.5",
-    "@types/mocha": "2.2.39",
-    "@types/node": "10.12.12",
-    "vscode": "1.1.26",
-    "typescript": "3.2.1"
+    "@types/vscode": "^1.84.0",
+    "@types/mocha": "^10.0.3",
+    "@types/node": "18.x",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "eslint": "^8.52.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "typescript": "^5.2.2",
+    "ts-loader": "^9.5.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "@vscode/test-electron": "^2.3.6"
   },
   "dependencies": {
     "fs-extra": "7.0.1",
