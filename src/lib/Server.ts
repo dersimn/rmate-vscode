@@ -6,75 +6,31 @@ import {EventEmitter} from 'events';
 
 const L = Logger.getLogger('Server');
 
-const DEFAULT_PORT = 52698;
-const DEFAULT_HOST = '127.0.0.1';
-
 class Server extends EventEmitter {
-  online : boolean = false;
-  server : net.Server;
-  port : number;
-  host : string;
-  dontShowPortAlreadyInUseError : boolean = false;
+  private options : {showPortAlreadyInUseError: boolean} = {
+    showPortAlreadyInUseError: true
+  };
   sessions = new Set<Session>();
+  server : net.Server;
 
-  constructor() {
+  constructor(host: string, port: number, options?: {showPortAlreadyInUseError: boolean}) {
     super();
     L.trace('constructor');
-  }
 
-  start(quiet : boolean) {
-    L.trace('start', quiet);
+    Object.assign(this.options, options);
 
-    if (this.isOnline()) {
-      this.stop();
-      L.info("Restarting server");
-      vscode.window.setStatusBarMessage("Restarting server", 2000);
-      this.emit('restarting');
-
-    } else {
-      if (!quiet) {
-        L.info("Starting server");
-        vscode.window.setStatusBarMessage("Starting server", 2000);
-      }
-
-      this.emit('starting');
-    }
+    vscode.window.setStatusBarMessage("Starting server", 2000);
+    this.emit('starting');
 
     this.server = net.createServer(this.onServerConnection.bind(this));
-
     this.server.on('listening', this.onServerListening.bind(this));
     this.server.on('error', this.onServerError.bind(this));
     this.server.on("close", this.onServerClose.bind(this));
 
-    this.server.listen(this.getPort(), this.getHost());
+    this.server.listen(port, host);
   }
 
-  setPort(port : number) {
-    L.trace('setPort', port);
-    this.port = port;
-  }
-
-  getPort() : number {
-    L.trace('getPort', +(this.port || DEFAULT_PORT));
-    return +(this.port || DEFAULT_PORT);
-  }
-
-  setHost(host : string) {
-    L.trace('setHost', host);
-    this.host = host;
-  }
-
-  getHost() : string {
-    L.trace('getHost', +(this.host || DEFAULT_HOST));
-    return (this.host || DEFAULT_HOST);
-  }
-
-  setDontShowPortAlreadyInUseError(dontShowPortAlreadyInUseError : boolean) {
-    L.trace('setDontShowPortAlreadyInUseError', dontShowPortAlreadyInUseError);
-    this.dontShowPortAlreadyInUseError = dontShowPortAlreadyInUseError;
-  }
-
-  onServerConnection(socket) {
+  onServerConnection(socket: net.Socket) {
     L.trace('onServerConnection');
 
     var session = new Session(socket);
@@ -86,30 +42,23 @@ class Server extends EventEmitter {
     });
   }
 
-  onServerListening(e) {
+  onServerListening() {
     L.trace('onServerListening');
-    this.setOnline(true);
     this.emit('ready');
   }
 
-  onServerError(e) {
+  onServerError(e: { code: string; port: any; }) {
     L.trace('onServerError', e);
 
     this.emit('error', e);
 
-    if (e.code == 'EADDRINUSE') {
-      if (this.dontShowPortAlreadyInUseError) {
-        return;
-      } else {
+    if (e.code === 'EADDRINUSE') {
+      if (this.options.showPortAlreadyInUseError) {
         return vscode.window.showErrorMessage(`Failed to start server, port ${e.port} already in use`);
+      } else {
+        return;
       }
     }
-
-    vscode.window.showErrorMessage(`Failed to start server, will try again in 10 seconds}`);
-
-    setTimeout(() => {
-      this.start(true);
-    }, 10000);
   }
 
   onServerClose() {
@@ -119,25 +68,9 @@ class Server extends EventEmitter {
   stop() {
     L.trace('stop');
 
+    vscode.window.setStatusBarMessage("Stopping server", 2000);
+    this.server.close();
     this.emit('stopped');
-
-    if (this.isOnline()) {
-      vscode.window.setStatusBarMessage("Stopping server", 2000);
-      this.server.close();
-      this.setOnline(false);
-    }
-  }
-
-  setOnline(online : boolean) {
-    L.trace('setOnline', online);
-    this.online = online;
-  }
-
-  isOnline() : boolean {
-    L.trace('isOnline');
-
-    L.debug('isOnline?', this.online);
-    return this.online;
   }
 
   async closeDocument() {

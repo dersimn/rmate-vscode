@@ -19,13 +19,14 @@ const startServer = () => {
     return;
   }
 
-  server = new Server();
+  server = new Server(
+    workspaceConfiguration.get<string>('host') ?? '127.0.0.1',
+    workspaceConfiguration.get<number>('port') ?? 52698,
+    {
+      showPortAlreadyInUseError: workspaceConfiguration.get<boolean>('showPortAlreadyInUseError') ?? true
+    }
+  );
   statusBarItem.server = server;
-
-  server.setPort(workspaceConfiguration.get<number>('port') ?? 52698);
-  server.setHost(workspaceConfiguration.get<string>('host') ?? '127.0.0.1');
-  server.setDontShowPortAlreadyInUseError(workspaceConfiguration.get<boolean>('dontShowPortAlreadyInUseError') ?? false);
-  server.start(false);
 };
 
 const stopServer = () => {
