@@ -23,7 +23,7 @@ const startServer = () => {
   }
 
   if (!statusBarItem) {
-    statusBarItem = new StatusBarItem();
+    statusBarItem = new StatusBarItem(server);
   }
 
   server.setPort(workspaceConfiguration.get<number>('port') ?? 52698);

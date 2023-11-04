@@ -5,15 +5,17 @@ import Logger from '../utils/Logger';
 const L = Logger.getLogger('StatusBarItem');
 
 class StatusBarItem {
-  server: Server = null;
+  server!: Server;
   item: vscode.StatusBarItem;
 
-  constructor() {
+  constructor(server: Server) {
     L.trace('constructor');
 
     this.item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
     this.item.color = new vscode.ThemeColor('statusBar.foreground');
     this.item.text = '$(rss)';
+
+    this.setServer(server);
   }
 
   setServer(server: Server) {
@@ -36,7 +38,7 @@ class StatusBarItem {
     server.on('starting', this.onStarting.bind(this));
     server.on('ready', this.onReady.bind(this));
     server.on('error', this.onError.bind(this));
-    server.on('stopped', this.onStopped.bind(this))
+    server.on('stopped', this.onStopped.bind(this));
   }
 
   onRestarting() {
@@ -63,10 +65,10 @@ class StatusBarItem {
     this.item.show();
   }
 
-  onError(e) {
+  onError(e: { code: string; }) {
     L.trace('onError');
 
-    if (e.code == 'EADDRINUSE') {
+    if (e.code === 'EADDRINUSE') {
       L.debug('onError', 'EADDRINUSE');
       this.item.tooltip = 'Remote error: Port already in use.';
 
