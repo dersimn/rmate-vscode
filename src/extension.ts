@@ -9,10 +9,6 @@ const L = Logger.getLogger('extension');
 
 let workspaceConfiguration : vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('remote');
 var server : Server;
-var port : number;
-var host : string;
-var onStartup : boolean;
-var dontShowPortAlreadyInUseError : boolean;
 var statusBarItem : StatusBarItem;
 
 const startServer = () => {
