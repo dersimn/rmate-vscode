@@ -42,17 +42,11 @@ const stopServer = () => {
   }
 };
 
-const initialize = () => {
-  L.trace('initialize');
-
+export function activate(context: vscode.ExtensionContext) {
+  L.trace('pkg.name', pkg.name);
   if (workspaceConfiguration.get<boolean>('onstartup')) {
     startServer();
   }
-};
-
-export function activate(context: vscode.ExtensionContext) {
-  L.trace('pkg.name', pkg.name);
-  initialize();
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.startServer', startServer));
   context.subscriptions.push(vscode.commands.registerCommand('extension.stopServer', stopServer));
@@ -72,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
   
     if (affectsConfiguration) {
       workspaceConfiguration = vscode.workspace.getConfiguration('remote');
-      initialize();
+      startServer();
     }
   }));
 }
