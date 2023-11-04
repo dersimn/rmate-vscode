@@ -69,7 +69,7 @@ class Session extends EventEmitter {
         var name = s.shift().trim();
         var value = s.join(":").trim();
 
-        if (name == 'data') {
+        if (name === 'data') {
           this.remoteFiles[remoteFileIdx].setDataSize(parseInt(value, 10));
           this.remoteFiles[remoteFileIdx].setToken(this.commands[remoteFileIdx].getVariable('token'));
           this.remoteFiles[remoteFileIdx].setDisplayName(this.commands[remoteFileIdx].getVariable('display-name'));
@@ -148,6 +148,7 @@ class Session extends EventEmitter {
     L.trace('handleChanges', textDocument.fileName);
 
     this.subscriptions.push(vscode.workspace.onDidSaveTextDocument((savedTextDocument : vscode.TextDocument) => {
+      // eslint-disable-next-line eqeqeq
       if (savedTextDocument == textDocument) {
         this.save(remoteFileIdx);
       }
@@ -156,6 +157,7 @@ class Session extends EventEmitter {
     this.subscriptions.push(vscode.workspace.onDidCloseTextDocument((closedTextDocument : vscode.TextDocument) => {
       L.trace('onDidCloseTextDocument', closedTextDocument);
       
+      // eslint-disable-next-line eqeqeq
       if (closedTextDocument == textDocument) {
         this.closeTimeout  && clearTimeout(this.closeTimeout);
         // If you change the textDocument language, it will close and re-open the same textDocument, so we add
@@ -167,6 +169,7 @@ class Session extends EventEmitter {
     }));
 
     this.subscriptions.push(vscode.workspace.onDidOpenTextDocument((openedTextDocument : vscode.TextDocument) => {
+      // eslint-disable-next-line eqeqeq
       if (openedTextDocument == textDocument) {
         this.closeTimeout  && clearTimeout(this.closeTimeout);
       }

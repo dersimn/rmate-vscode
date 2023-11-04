@@ -8,7 +8,7 @@ import Logger from '../utils/Logger';
 const L = Logger.getLogger('RemoteFile');
 
 class RemoteFile {
-  dataSize : number;
+  dataSize : number | null = null;
   writtenDataSize : number = 0;
 
   token : string;
@@ -136,14 +136,14 @@ class RemoteFile {
 
   isEmpty() : boolean {
     L.trace('isEmpty');
-    L.debug('isEmpty?', this.dataSize == null);
-    return this.dataSize == null;
+    L.debug('isEmpty?', this.dataSize === null);
+    return this.dataSize === null;
   }
 
   isReady() : boolean {
     L.trace('isReady');
-    L.debug('isReady?', this.writtenDataSize == this.dataSize);
-    return this.writtenDataSize == this.dataSize;
+    L.debug('isReady?', this.writtenDataSize === this.dataSize);
+    return this.writtenDataSize === this.dataSize;
   }
 }
 
