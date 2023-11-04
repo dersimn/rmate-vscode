@@ -4,7 +4,7 @@ import RemoteFile from './RemoteFile';
 const L = Logger.getLogger('Command');
 
 class Command {
-  name : string;
+  name!: string;
   variables : Map<string, any>;
 
   constructor(name : string) {

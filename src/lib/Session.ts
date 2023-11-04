@@ -15,7 +15,7 @@ class Session extends EventEmitter {
   remoteFiles : Array<RemoteFile> = [];
   currFileIdx : number = 0;
   attempts : number = 0;
-  closeTimeout : NodeJS.Timer;
+  closeTimeout : NodeJS.Timeout | undefined;
 
   constructor(socket : net.Socket) {
     super();
