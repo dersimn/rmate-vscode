@@ -1,4 +1,5 @@
 'use strict';
+import pkg from '../package.json';
 import * as vscode from 'vscode';
 import Server from './lib/Server';
 import Logger from './utils/Logger';
@@ -71,28 +72,20 @@ const getConfiguration = () => {
   return configuration;
 };
 
-const hasConfigurationChanged = (configuration) => {
-  L.trace('hasConfigurationChanged');
-  var hasChanged = ((configuration.port !== port) ||
-                    (configuration.onStartup !== onStartup) ||
-                    (configuration.host !== host) ||
-                    (configuration.dontShowPortAlreadyInUseError !== dontShowPortAlreadyInUseError));
-
-  L.debug("hasConfigurationChanged?", hasChanged);
-  return hasChanged;
-}
-
-const onConfigurationChange = () => {
+const onConfigurationChange = (event: vscode.ConfigurationChangeEvent) => {
   L.trace('onConfigurationChange');
 
-  var configuration = getConfiguration();
+  L.trace('configs', Object.keys(pkg.contributes.configuration.properties));
+  const affectsConfiguration = !Object.keys(pkg.contributes.configuration.properties).every(config => event.affectsConfiguration(config) === false);
+  L.trace('affectsConfiguration', affectsConfiguration);
 
-  if (hasConfigurationChanged(configuration)) {
+  if (affectsConfiguration) {
     initialize();
   }
 };
 
 export function activate(context: vscode.ExtensionContext) {
+  L.trace('pkg.name', pkg.name);
   initialize();
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.startServer', startServer));
