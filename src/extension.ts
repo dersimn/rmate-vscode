@@ -8,7 +8,6 @@ import StatusBarItem from './lib/StatusBarItem';
 const L = Logger.getLogger('extension');
 
 var server : Server;
-var changeConfigurationDisposable : vscode.Disposable;
 var port : number;
 var host : string;
 var onStartup : boolean;
@@ -75,9 +74,12 @@ const getConfiguration = () => {
 const onConfigurationChange = (event: vscode.ConfigurationChangeEvent) => {
   L.trace('onConfigurationChange');
 
-  L.trace('configs', Object.keys(pkg.contributes.configuration.properties));
-  const affectsConfiguration = !Object.keys(pkg.contributes.configuration.properties).every(config => event.affectsConfiguration(config) === false);
-  L.trace('affectsConfiguration', affectsConfiguration);
+  const affectsConfiguration = 
+    !                                                             // if not
+    Object.keys(pkg.contributes.configuration.properties).every(  // every config in package.json
+      config => event.affectsConfiguration(config) === false      // is false
+    );
+  L.trace('affectsConfiguration', affectsConfiguration);          // our configuration is affected
 
   if (affectsConfiguration) {
     initialize();
@@ -94,10 +96,9 @@ export function activate(context: vscode.ExtensionContext) {
     server.closeDocument();
   }));
 
-  changeConfigurationDisposable = vscode.workspace.onDidChangeConfiguration(onConfigurationChange);
+  context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(onConfigurationChange));
 }
 
 export function deactivate() {
   stopServer();
-  changeConfigurationDisposable.dispose();
 }
