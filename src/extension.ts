@@ -71,21 +71,6 @@ const getConfiguration = () => {
   return configuration;
 };
 
-const onConfigurationChange = (event: vscode.ConfigurationChangeEvent) => {
-  L.trace('onConfigurationChange');
-
-  const affectsConfiguration = 
-    !                                                             // if not
-    Object.keys(pkg.contributes.configuration.properties).every(  // every config in package.json
-      config => event.affectsConfiguration(config) === false      // is false
-    );
-  L.trace('affectsConfiguration', affectsConfiguration);          // our configuration is affected
-
-  if (affectsConfiguration) {
-    initialize();
-  }
-};
-
 export function activate(context: vscode.ExtensionContext) {
   L.trace('pkg.name', pkg.name);
   initialize();
@@ -96,7 +81,20 @@ export function activate(context: vscode.ExtensionContext) {
     server.closeDocument();
   }));
 
-  context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(onConfigurationChange));
+  context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
+    L.trace('onDidChangeConfiguration');
+  
+    const affectsConfiguration = 
+      !                                                             // if not
+      Object.keys(pkg.contributes.configuration.properties).every(  // every config in package.json
+        config => event.affectsConfiguration(config) === false      // is false
+      );
+    L.trace('affectsConfiguration', affectsConfiguration);          // our configuration is affected
+  
+    if (affectsConfiguration) {
+      initialize();
+    }
+  }));
 }
 
 export function deactivate() {
