@@ -66,6 +66,10 @@
         "title": "Remote: Stop Server"
       },
       {
+        "command": "extension.restartServer",
+        "title": "Remote: Restart Server"
+      },
+      {
         "command": "extension.closeDocument",
         "title": "Remote: Close Document"
       }

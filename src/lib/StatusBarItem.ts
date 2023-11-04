@@ -5,30 +5,34 @@ import Logger from '../utils/Logger';
 const L = Logger.getLogger('StatusBarItem');
 
 class StatusBarItem {
-  server!: Server;
-  item: vscode.StatusBarItem;
+  private _server: Server | undefined | null;
+  public item: vscode.StatusBarItem;
 
-  constructor(server: Server) {
+  constructor() {
     L.trace('constructor');
 
     this.item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
     this.item.color = new vscode.ThemeColor('statusBar.foreground');
     this.item.text = '$(rss)';
-
-    this.setServer(server);
   }
 
-  setServer(server: Server) {
+  public get server() {
+    return this._server;
+  }
+
+  public set server(server: Server | undefined | null) {
     L.trace('setServer');
 
-    if (this.server) {
+    if (this._server) {
       L.debug('setServer', 'remove all listeners');
-      this.server.removeAllListeners();
+      this._server.removeAllListeners();
     }
 
-    this.server = server;
+    this._server = server;
 
-    this.handleEvents(server);
+    if (server) {
+      this.handleEvents(server);
+    }
   }
 
   handleEvents(server: Server) {

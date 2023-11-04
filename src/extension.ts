@@ -8,26 +8,24 @@ import StatusBarItem from './lib/StatusBarItem';
 const L = Logger.getLogger('extension');
 
 let workspaceConfiguration : vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('remote');
-let server : Server;
-let statusBarItem : StatusBarItem;
+let server : Server | undefined | null;
+let statusBarItem : StatusBarItem = new StatusBarItem();
 
 const startServer = () => {
   L.trace('startServer');
 
-  if (!server) {
-    server = new Server();
+  if (server) {
+    vscode.window.showErrorMessage('Server is already started, use `stopServer` first.');
+    return;
   }
 
-  if (!statusBarItem) {
-    statusBarItem = new StatusBarItem(server);
-  }
+  server = new Server();
+  statusBarItem.server = server;
 
   server.setPort(workspaceConfiguration.get<number>('port') ?? 52698);
   server.setHost(workspaceConfiguration.get<string>('host') ?? '127.0.0.1');
   server.setDontShowPortAlreadyInUseError(workspaceConfiguration.get<boolean>('dontShowPortAlreadyInUseError') ?? false);
   server.start(false);
-
-  statusBarItem.setServer(server);
 };
 
 const stopServer = () => {
@@ -35,7 +33,15 @@ const stopServer = () => {
 
   if (server) {
     server.stop();
+    server = null;
   }
+};
+
+const restartServer = () => {
+  L.trace('restartServer');
+
+  stopServer();
+  startServer();
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -46,7 +52,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('extension.startServer', startServer));
   context.subscriptions.push(vscode.commands.registerCommand('extension.stopServer', stopServer));
+  context.subscriptions.push(vscode.commands.registerCommand('extension.restartServer', restartServer));
   context.subscriptions.push(vscode.commands.registerCommand('extension.closeDocument', () => {
+    if (!server) {
+      vscode.window.showErrorMessage('Server is not started.');
+      return;
+    }
+
     server.closeDocument();
   }));
 
@@ -62,7 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
   
     if (affectsConfiguration) {
       workspaceConfiguration = vscode.workspace.getConfiguration('remote');
-      startServer();
+      restartServer();
     }
   }));
 }
