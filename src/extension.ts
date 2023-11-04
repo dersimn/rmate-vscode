@@ -7,6 +7,7 @@ import StatusBarItem from './lib/StatusBarItem';
 
 const L = Logger.getLogger('extension');
 
+let workspaceConfiguration : vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('remote');
 var server : Server;
 var port : number;
 var host : string;
@@ -25,9 +26,9 @@ const startServer = () => {
     statusBarItem = new StatusBarItem();
   }
 
-  server.setPort(port);
-  server.setHost(host);
-  server.setDontShowPortAlreadyInUseError(dontShowPortAlreadyInUseError);
+  server.setPort(workspaceConfiguration.get<number>('port') ?? 52698);
+  server.setHost(workspaceConfiguration.get<string>('host') ?? '127.0.0.1');
+  server.setDontShowPortAlreadyInUseError(workspaceConfiguration.get<boolean>('dontShowPortAlreadyInUseError') ?? false);
   server.start(false);
 
   statusBarItem.setServer(server);
@@ -44,31 +45,9 @@ const stopServer = () => {
 const initialize = () => {
   L.trace('initialize');
 
-  var configuration = getConfiguration();
-  onStartup = configuration.onStartup;
-  port = configuration.port;
-  host = configuration.host;
-  dontShowPortAlreadyInUseError = configuration.dontShowPortAlreadyInUseError;
-
-  if (onStartup) {
+  if (workspaceConfiguration.get<boolean>('onstartup')) {
     startServer();
   }
-};
-
-const getConfiguration = () => {
-  L.trace('getConfiguration');
-  var remoteConfig = vscode.workspace.getConfiguration('remote');
-
-  var configuration = {
-    onStartup: remoteConfig.get<boolean>('onstartup'),
-    dontShowPortAlreadyInUseError: remoteConfig.get<boolean>('dontShowPortAlreadyInUseError'),
-    port: remoteConfig.get<number>('port'),
-    host: remoteConfig.get<string>('host')
-  };
-
-  L.debug("getConfiguration", configuration);
-
-  return configuration;
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -92,6 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
     L.trace('affectsConfiguration', affectsConfiguration);          // our configuration is affected
   
     if (affectsConfiguration) {
+      workspaceConfiguration = vscode.workspace.getConfiguration('remote');
       initialize();
     }
   }));
