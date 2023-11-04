@@ -8,8 +8,8 @@ import StatusBarItem from './lib/StatusBarItem';
 const L = Logger.getLogger('extension');
 
 let workspaceConfiguration : vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration('remote');
-var server : Server;
-var statusBarItem : StatusBarItem;
+let server : Server;
+let statusBarItem : StatusBarItem;
 
 const startServer = () => {
   L.trace('startServer');
