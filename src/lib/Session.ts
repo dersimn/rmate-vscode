@@ -95,18 +95,19 @@ class Session extends EventEmitter {
     }
 
     let appendedData = 0;
-    if (this.remoteFiles[this.currentId].waitingForData) {
+    if (this.remoteFiles[this.currentId]?.waitingForData) {
       appendedData = this.remoteFiles[this.currentId].appendData(buffer);
       L.trace('appendedData', appendedData);
     }
 
-    if (this.remoteFiles[this.currentId].finished) {
+    if (this.remoteFiles[this.currentId]?.finished) {
       L.trace('remoteFile ready');
 
       this.remoteFiles[this.currentId].closeSync();
       this.openInEditor(this.currentId);
       this.currentId++;
 
+      L.trace('buffer.length', buffer.length);
       if (buffer.length > appendedData) {
         L.trace('more commands in chunk');
 
