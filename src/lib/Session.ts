@@ -119,16 +119,6 @@ class Session extends EventEmitter {
       case 'open':
         this.handleOpen(remoteFileIdx);
         break;
-
-      case 'list':
-        this.handleList(this.commands[remoteFileIdx]);
-        this.emit('list');
-        break;
-
-      case 'connect':
-        this.handleConnect(this.commands[remoteFileIdx]);
-        this.emit('connect');
-        break;
     }
   }
 
@@ -208,36 +198,12 @@ class Session extends EventEmitter {
     this.openInEditor(remoteFileIdx);
   }
 
-  handleConnect(command : Command) {
-    L.trace('handleConnect', command.name);
-  }
-
-  handleList(command : Command) {
-    L.trace('handleList', command.name);
-  }
-
   send(cmd : string) {
     L.trace('send', cmd);
 
     if (this.isOnline()) {
       this.socket.write(cmd + "\n");
     }
-  }
-
-  open(filePath : string) {
-    L.trace('filePath', filePath);
-
-    this.send("open");
-    this.send(`path: ${filePath}`);
-    this.send("");
-  }
-
-  list(dirPath : string) {
-    L.trace('list', dirPath);
-
-    this.send("list");
-    this.send(`path: ${dirPath}`);
-    this.send("");
   }
 
   save(remoteFileIdx : number) {
