@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
+import * as vscode from 'vscode';
 import randomString  from '../utils/randomString';
 import Logger from '../utils/Logger';
 
@@ -20,6 +21,8 @@ class RemoteFile {
   private fileDescriptor : number | null = null;
   writtenDataSize : number = 0;
   private _waitingForData : boolean = false;
+
+  subscriptions : Array<vscode.Disposable> = [];
 
   constructor() {
     L.trace('constructor');

@@ -11,7 +11,6 @@ class Session extends EventEmitter {
   currentId : number = 0;
   socket : net.Socket;
   online : boolean;
-  subscriptions : Array<vscode.Disposable> = [];
   attempts : number = 0;
   closeTimeout : NodeJS.Timeout | undefined;
 
@@ -150,14 +149,14 @@ class Session extends EventEmitter {
   handleChanges(textDocument : vscode.TextDocument, remoteFileIdx : number) {
     L.trace('handleChanges', textDocument.fileName);
 
-    this.subscriptions.push(vscode.workspace.onDidSaveTextDocument((savedTextDocument : vscode.TextDocument) => {
+    this.remoteFiles[remoteFileIdx].subscriptions.push(vscode.workspace.onDidSaveTextDocument((savedTextDocument : vscode.TextDocument) => {
       // eslint-disable-next-line eqeqeq
       if (savedTextDocument == textDocument) {
         this.save(remoteFileIdx);
       }
     }));
 
-    this.subscriptions.push(vscode.workspace.onDidCloseTextDocument((closedTextDocument : vscode.TextDocument) => {
+    this.remoteFiles[remoteFileIdx].subscriptions.push(vscode.workspace.onDidCloseTextDocument((closedTextDocument : vscode.TextDocument) => {
       L.trace('onDidCloseTextDocument', closedTextDocument);
       
       // eslint-disable-next-line eqeqeq
@@ -166,12 +165,12 @@ class Session extends EventEmitter {
         // If you change the textDocument language, it will close and re-open the same textDocument, so we add
         // a timeout to make sure it is really being closed before close the socket.
         this.closeTimeout = setTimeout(() => {
-          this.close();
+          this.close(remoteFileIdx);
         }, 2);
       }
     }));
 
-    this.subscriptions.push(vscode.workspace.onDidOpenTextDocument((openedTextDocument : vscode.TextDocument) => {
+    this.remoteFiles[remoteFileIdx].subscriptions.push(vscode.workspace.onDidOpenTextDocument((openedTextDocument : vscode.TextDocument) => {
       // eslint-disable-next-line eqeqeq
       if (openedTextDocument == textDocument) {
         this.closeTimeout  && clearTimeout(this.closeTimeout);
@@ -211,20 +210,34 @@ class Session extends EventEmitter {
     statusBarMessage.dispose();
   }
 
-  close() {
+  close(remoteFileIdx : number) {
     L.trace('close');
+    let remoteFile = this.remoteFiles[remoteFileIdx];
 
-    if (this.online) {
-      this.online = false;
-
-      this.socket.write('close\n\n');
-      
-      this.emit('close');
-
-      this.socket.end();
+    if (!this.online) {
+      L.error('NOT online');
+      vscode.window.showErrorMessage(`Error sending close message for ${remoteFile.remoteBaseName} to ${remoteFile.remoteHost}`);
+      return;
     }
 
-    this.subscriptions.forEach((disposable : vscode.Disposable) => disposable.dispose());
+    this.socket.write('close\n');
+    this.socket.write(`token: ${remoteFile.token}\n\n`);
+
+    remoteFile.subscriptions.forEach((disposable : vscode.Disposable) => disposable.dispose());
+
+    // Remove RemoteFile from Array of active Elements
+    this.remoteFiles.splice(remoteFileIdx, 1);
+
+    if (this.remoteFiles.length === 0) {
+      this.socket.end();
+      this.emit('close');
+    }
+  }
+
+  closeAll() {
+    for (let i = 0; i < this.remoteFiles.length; i++) {
+      this.close(i);
+    }
   }
 }
 

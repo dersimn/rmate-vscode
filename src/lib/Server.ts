@@ -95,7 +95,7 @@ class Server extends EventEmitter {
     const selected = await vscode.window.showQuickPick(openFiles);
     L.trace('closeDocument > selected', selected);
 
-    selected?.session.close();
+    selected?.session.closeAll();
   }
 }
 
