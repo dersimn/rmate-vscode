@@ -1,5 +1,5 @@
 import * as net from 'net';
-import Session from "./Session";
+import Session from './Session';
 import * as vscode from 'vscode';
 import Logger from '../utils/Logger';
 import {EventEmitter} from 'events';
@@ -19,13 +19,13 @@ class Server extends EventEmitter {
 
     Object.assign(this.options, options);
 
-    vscode.window.setStatusBarMessage("Starting server", 2000);
+    vscode.window.setStatusBarMessage('Starting server', 2000);
     this.emit('starting');
 
     this.server = net.createServer(this.onServerConnection.bind(this));
     this.server.on('listening', this.onServerListening.bind(this));
     this.server.on('error', this.onServerError.bind(this));
-    this.server.on("close", this.onServerClose.bind(this));
+    this.server.on('close', this.onServerClose.bind(this));
 
     this.server.listen(port, host);
   }
@@ -34,7 +34,7 @@ class Server extends EventEmitter {
     L.trace('onServerConnection');
 
     var session = new Session(socket);
-    session.send("VSCode " + 1);
+    session.send('VSCode ' + 1);
 
     this.sessions.add(session);
     session.on('close', () => {
@@ -68,7 +68,7 @@ class Server extends EventEmitter {
   stop() {
     L.trace('stop');
 
-    vscode.window.setStatusBarMessage("Stopping server", 2000);
+    vscode.window.setStatusBarMessage('Stopping server', 2000);
     this.server.close();
     this.emit('stopped');
   }

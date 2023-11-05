@@ -5,8 +5,8 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import RemoteFile from '../../lib/RemoteFile';
 
-suite("Command Tests", () => {
-  test("constructor", () => {
+suite('Command Tests', () => {
+  test('constructor', () => {
     var remoteFile = new RemoteFile();
 	});
 

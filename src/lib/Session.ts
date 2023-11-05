@@ -120,7 +120,7 @@ class Session extends EventEmitter {
 
     vscode.workspace.openTextDocument(remoteFile.localFilePath).then((textDocument : vscode.TextDocument) => {
       if (!textDocument && this.attempts < 3) {
-        L.warn("Failed to open the text document, will try again");
+        L.warn('Failed to open the text document, will try again');
 
         setTimeout(() => {
           this.attempts++;
@@ -129,7 +129,7 @@ class Session extends EventEmitter {
         return;
 
       } else if (!textDocument) {
-        L.error("Could NOT open the file", remoteFile.localFilePath);
+        L.error('Could NOT open the file', remoteFile.localFilePath);
         vscode.window.showErrorMessage(`Failed to open file ${remoteFile.remoteBaseName}`);
         return;
       }
@@ -189,7 +189,7 @@ class Session extends EventEmitter {
     L.trace('send', cmd);
 
     if (this.isOnline()) {
-      this.socket.write(cmd + "\n");
+      this.socket.write(cmd + '\n');
     }
   }
 
@@ -198,7 +198,7 @@ class Session extends EventEmitter {
     let remoteFile = this.remoteFiles[remoteFileIdx];
 
     if (!this.isOnline()) {
-      L.error("NOT online");
+      L.error('NOT online');
       vscode.window.showErrorMessage(`Error saving ${remoteFile.remoteBaseName} to ${remoteFile.remoteHost}`);
       return;
     }
@@ -207,11 +207,11 @@ class Session extends EventEmitter {
 
     var buffer = remoteFile.readFileSync();
 
-    this.send("save");
+    this.send('save');
     this.send(`token: ${remoteFile.token}`);
-    this.send("data: " + buffer.length);
+    this.send('data: ' + buffer.length);
     this.socket.write(buffer);
-    this.send("");
+    this.send('');
   }
 
   close() {
@@ -220,8 +220,8 @@ class Session extends EventEmitter {
     if (this.isOnline()) {
       this.online = false;
 
-      this.send("close");
-      this.send("");
+      this.send('close');
+      this.send('');
       
       this.emit('close');
 

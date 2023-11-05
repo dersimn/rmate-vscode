@@ -134,7 +134,7 @@ class RemoteFile {
     }
 
     this.writtenDataSize += length;
-    L.debug("writtenDataSize", this.writtenDataSize);
+    L.debug('writtenDataSize', this.writtenDataSize);
 
     this.writeSync(buffer, 0, length);
 
