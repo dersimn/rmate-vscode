@@ -4,18 +4,23 @@ import RemoteFile from './RemoteFile';
 const L = Logger.getLogger('Command');
 
 class Command {
-  private _name: string;
+  private _name: string | undefined;
   variables : Map<string, any>;
   remoteFile : RemoteFile = new RemoteFile();
 
-  constructor(name : string) {
+  constructor(name?: string) {
     L.trace('constructor', name);
     this.variables = new Map();
     this._name = name;
   }
 
-  get name() : string {
+  get name() : string | undefined {
     return this._name;
+  }
+  set name(name : string) {
+    if (!this._name) {
+      this._name = name;
+    }
   }
 
   addVariable(key : string, value : any) {

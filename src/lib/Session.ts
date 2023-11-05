@@ -44,7 +44,11 @@ class Session extends EventEmitter {
     L.trace('buffer', buffer);
     L.trace('buffer.toString()', buffer.toString());
 
-    if (!this.commands[this.currentId]?.remoteFile?.waitingForData) {
+    if (!this.commands[this.currentId]) {
+      this.commands[this.currentId] = new Command();
+    }
+
+    if (!this.commands[this.currentId].remoteFile.waitingForData) {
       while (buffer.length) {
         const indexOfNextNewLine = buffer.indexOf('\n');
         const line = buffer.subarray(0, indexOfNextNewLine).toString('utf8');
@@ -61,8 +65,8 @@ class Session extends EventEmitter {
           break;
         }
 
-        if (!this.commands[this.currentId]) {
-          this.commands.push(new Command(line));
+        if (!this.commands[this.currentId].name) {
+          this.commands[this.currentId].name = line;
           continue;
         }
 
