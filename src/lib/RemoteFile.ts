@@ -12,7 +12,7 @@ class RemoteFile {
   writtenDataSize : number = 0;
 
   private _token : string | null = null;
-  localFilePath : string;
+  private _localFilePath: string;
 
   private fileDescriptor : number | null = null;
 
@@ -73,6 +73,14 @@ class RemoteFile {
     return splitArray.join(':') ?? null;
   }
 
+  get localFilePath() : string | null {
+    return this._localFilePath;
+  }
+
+  get localDirectoryName() : string | null {
+    return path.dirname(this._localFilePath);
+  }
+
   setVariable(key : string, value : any) {
     L.trace('addVariable', key, value);
     this.variables.set(key, value);
@@ -81,34 +89,6 @@ class RemoteFile {
   getVariable(key : string) : any {
     L.trace('getVariable', key);
     return this.variables.get(key);
-  }
-
-  createLocalFilePath() {
-    L.trace('createLocalFilePath');
-    this.localFilePath = path.join(os.tmpdir(), randomString(10), this.remoteBaseName || randomString(10));
-  }
-
-  getLocalDirectoryName() {
-    L.trace('getLocalDirectoryName', path.dirname(this.localFilePath || ""));
-    if (!this.localFilePath) {
-      return;
-    }
-    return path.dirname(this.localFilePath);
-  }
-
-  createLocalDir() {
-    L.trace('createLocalDir');
-    fse.mkdirsSync(this.getLocalDirectoryName());
-  }
-
-  getLocalFilePath() {
-    L.trace('getLocalFilePath', this.localFilePath);
-    return this.localFilePath;
-  }
-
-  openSync() {
-    L.trace('openSync');
-    this.fileDescriptor = fs.openSync(this.getLocalFilePath(), 'w');
   }
 
   closeSync() {
@@ -122,9 +102,9 @@ class RemoteFile {
 
   initialize() {
     L.trace('initialize');
-    this.createLocalFilePath();
-    this.createLocalDir();
-    this.openSync();
+    this._localFilePath = path.join(os.tmpdir(), randomString(10), this.remoteBaseName || randomString(10));
+    fse.mkdirsSync(this.localDirectoryName);
+    this.fileDescriptor = fs.openSync(this.localFilePath, 'w');
     this._waitingForData = true;
   }
 

@@ -119,7 +119,7 @@ class Session extends EventEmitter {
     L.trace('openInEditor', remoteFileIdx);
     let remoteFile = this.remoteFiles[remoteFileIdx];
 
-    vscode.workspace.openTextDocument(remoteFile.getLocalFilePath()).then((textDocument : vscode.TextDocument) => {
+    vscode.workspace.openTextDocument(remoteFile.localFilePath).then((textDocument : vscode.TextDocument) => {
       if (!textDocument && this.attempts < 3) {
         L.warn("Failed to open the text document, will try again");
 
@@ -130,7 +130,7 @@ class Session extends EventEmitter {
         return;
 
       } else if (!textDocument) {
-        L.error("Could NOT open the file", remoteFile.getLocalFilePath());
+        L.error("Could NOT open the file", remoteFile.localFilePath);
         vscode.window.showErrorMessage(`Failed to open file ${remoteFile.remoteBaseName}`);
         return;
       }
