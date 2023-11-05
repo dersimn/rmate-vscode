@@ -20,7 +20,6 @@ class RemoteFile {
   fd : number;
 
   private _waitingForData : boolean = false;
-  private _finished : boolean = false;
 
   private _name: string | undefined;
   variables : Map<string, any> = new Map();
@@ -150,7 +149,6 @@ class RemoteFile {
 
     if (this.writtenDataSize === this.dataSize) {
       this._waitingForData = false;
-      this._finished = true;
     }
 
     return length;
@@ -180,7 +178,7 @@ class RemoteFile {
     return this._waitingForData;
   }
   get finished() : boolean {
-    return this._finished;
+    return this.writtenDataSize === this.dataSize;
   }
 }
 
