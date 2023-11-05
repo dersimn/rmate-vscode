@@ -12,7 +12,7 @@ class RemoteFile {
   writtenDataSize : number = 0;
 
   private _token : string | null = null;
-  private _localFilePath: string;
+  private _localFilePath!: string;
 
   private fileDescriptor : number | null = null;
 
@@ -73,11 +73,11 @@ class RemoteFile {
     return splitArray.join(':') ?? null;
   }
 
-  get localFilePath() : string | null {
+  get localFilePath() : string {
     return this._localFilePath;
   }
 
-  get localDirectoryName() : string | null {
+  get localDirectoryName() : string {
     return path.dirname(this._localFilePath);
   }
 
