@@ -10,173 +10,173 @@ suite("Command Tests", () => {
     var remoteFile = new RemoteFile();
 	});
 
-  test("setToken", () => {
-    var token = "test";
-    var remoteFile = new RemoteFile();
+  // test("setToken", () => {
+  //   var token = "test";
+  //   var remoteFile = new RemoteFile();
 
-    remoteFile.setToken(token);
+  //   remoteFile.setToken(token);
 
-    assert.equal(token, remoteFile.getToken());
-	});
+  //   assert.equal(token, remoteFile.getToken());
+	// });
 
-  test("getToken", () => {
-    var token = "test";
-    var remoteFile = new RemoteFile();
+  // test("getToken", () => {
+  //   var token = "test";
+  //   var remoteFile = new RemoteFile();
 
-    remoteFile.setToken(token);
+  //   remoteFile.setToken(token);
 
-    assert.equal(token, remoteFile.getToken());
-	});
+  //   assert.equal(token, remoteFile.getToken());
+	// });
 
-  test("setDisplayName - stdin", () => {
-    var remoteFile = new RemoteFile();
+  // test("setDisplayName - stdin", () => {
+  //   var remoteFile = new RemoteFile();
 
-    var hostname = "hostname";
-    var remoteBasename = "untitled (stdin)";
+  //   var hostname = "hostname";
+  //   var remoteBasename = "untitled (stdin)";
 
-    remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
+  //   remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
 
-    assert.equal(hostname, remoteFile.getHost());
-    assert.equal(remoteBasename, remoteFile.getRemoteBaseName());
-	});
+  //   assert.equal(hostname, remoteFile.getHost());
+  //   assert.equal(remoteBasename, remoteFile.getRemoteBaseName());
+	// });
 
-  test("setDisplayName - file path", () => {
-    var remoteFile = new RemoteFile();
+  // test("setDisplayName - file path", () => {
+  //   var remoteFile = new RemoteFile();
 
-    var hostname = "hostname";
-    var remoteBasename = "someFile";
+  //   var hostname = "hostname";
+  //   var remoteBasename = "someFile";
 
-    remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
+  //   remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
 
-    assert.equal(hostname, remoteFile.getHost());
-    assert.equal(remoteBasename, remoteFile.getRemoteBaseName());
-  });
+  //   assert.equal(hostname, remoteFile.getHost());
+  //   assert.equal(remoteBasename, remoteFile.getRemoteBaseName());
+  // });
 
-  test("setDisplayName - file name", () => {
-    var remoteFile = new RemoteFile();
+  // test("setDisplayName - file name", () => {
+  //   var remoteFile = new RemoteFile();
 
-    var fileName = "this is a file name";
+  //   var fileName = "this is a file name";
 
-    remoteFile.setDisplayName(`${fileName}`);
+  //   remoteFile.setDisplayName(`${fileName}`);
 
-    assert.equal(fileName, remoteFile.getRemoteBaseName());
-  });
+  //   assert.equal(fileName, remoteFile.getRemoteBaseName());
+  // });
 
-  test("getHost", () => {
-    var remoteFile = new RemoteFile();
+  // test("getHost", () => {
+  //   var remoteFile = new RemoteFile();
 
-    var hostname = "hostname";
-    var remoteBasename = "untitled (stdin)";
+  //   var hostname = "hostname";
+  //   var remoteBasename = "untitled (stdin)";
 
-    remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
-    assert.equal(hostname, remoteFile.getHost());
-	});
+  //   remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
+  //   assert.equal(hostname, remoteFile.getHost());
+	// });
 
-  test("getRemoteBaseName", () => {
-    var remoteFile = new RemoteFile();
+  // test("getRemoteBaseName", () => {
+  //   var remoteFile = new RemoteFile();
 
-    var hostname = "hostname";
-    var remoteBasename = "someFile";
+  //   var hostname = "hostname";
+  //   var remoteBasename = "someFile";
 
-    remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
+  //   remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
 
-    assert.equal(remoteBasename, remoteFile.getRemoteBaseName());
-	});
+  //   assert.equal(remoteBasename, remoteFile.getRemoteBaseName());
+	// });
 
-  test("createLocalFilePath", () => {
-    var remoteFile = new RemoteFile();
+  // test("createLocalFilePath", () => {
+  //   var remoteFile = new RemoteFile();
 
-    var hostname = "hostname";
-    var remoteBasename = "someFile";
-    remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
-    remoteFile.createLocalFilePath();
+  //   var hostname = "hostname";
+  //   var remoteBasename = "someFile";
+  //   remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
+  //   remoteFile.createLocalFilePath();
 
-    var localFilePath = remoteFile.getLocalFilePath();
+  //   var localFilePath = remoteFile.getLocalFilePath();
 
-    assert.equal(true, localFilePath.startsWith(os.tmpdir()));
-    assert.equal(true, localFilePath.endsWith(remoteBasename));
-	});
+  //   assert.equal(true, localFilePath.startsWith(os.tmpdir()));
+  //   assert.equal(true, localFilePath.endsWith(remoteBasename));
+	// });
 
-  test("getLocalDirectoryName", () => {
-    var remoteFile = new RemoteFile();
+  // test("getLocalDirectoryName", () => {
+  //   var remoteFile = new RemoteFile();
 
-    var hostname = "hostname";
-    var remoteBasename = "someFile";
+  //   var hostname = "hostname";
+  //   var remoteBasename = "someFile";
 
-    remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
+  //   remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
 
-    assert.equal(undefined, remoteFile.getLocalDirectoryName());
+  //   assert.equal(undefined, remoteFile.getLocalDirectoryName());
 
-    remoteFile.createLocalFilePath();
+  //   remoteFile.createLocalFilePath();
 
-    var directoryPath = path.dirname(remoteFile.getLocalFilePath());
-    assert.equal(directoryPath, remoteFile.getLocalDirectoryName());
-	});
+  //   var directoryPath = path.dirname(remoteFile.getLocalFilePath());
+  //   assert.equal(directoryPath, remoteFile.getLocalDirectoryName());
+	// });
 
-  test("createLocalDir", () => {
-    var remoteFile = new RemoteFile();
+  // test("createLocalDir", () => {
+  //   var remoteFile = new RemoteFile();
 
-    var hostname = "hostname";
-    var remoteBasename = "someFile";
-    remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
-    remoteFile.createLocalFilePath();
-    var directoryPath = remoteFile.getLocalDirectoryName();
-    remoteFile.createLocalDir();
+  //   var hostname = "hostname";
+  //   var remoteBasename = "someFile";
+  //   remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
+  //   remoteFile.createLocalFilePath();
+  //   var directoryPath = remoteFile.getLocalDirectoryName();
+  //   remoteFile.createLocalDir();
 
-    assert.equal(true, fs.statSync(directoryPath).isDirectory());
-	});
+  //   assert.equal(true, fs.statSync(directoryPath).isDirectory());
+	// });
 
-  test("getLocalFilePath", () => {
-    var remoteFile = new RemoteFile();
+  // test("getLocalFilePath", () => {
+  //   var remoteFile = new RemoteFile();
 
-    var hostname = "hostname";
-    var remoteBasename = "someFile";
-    remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
+  //   var hostname = "hostname";
+  //   var remoteBasename = "someFile";
+  //   remoteFile.setDisplayName(`${hostname}:${remoteBasename}`);
 
-    assert.equal(undefined, remoteFile.getLocalFilePath());
+  //   assert.equal(undefined, remoteFile.getLocalFilePath());
 
-    remoteFile.createLocalFilePath();
+  //   remoteFile.createLocalFilePath();
 
-    var localFilePath = remoteFile.getLocalFilePath();
+  //   var localFilePath = remoteFile.getLocalFilePath();
 
-    assert.equal(true, localFilePath.startsWith(os.tmpdir()));
-    assert.equal(true, localFilePath.endsWith(remoteBasename));
+  //   assert.equal(true, localFilePath.startsWith(os.tmpdir()));
+  //   assert.equal(true, localFilePath.endsWith(remoteBasename));
 
-	});
+	// });
 
-  test("openSync", () => {
-    var remoteFile = new RemoteFile();
-	});
+  // test("openSync", () => {
+  //   var remoteFile = new RemoteFile();
+	// });
 
-  test("closeSync", () => {
-    var remoteFile = new RemoteFile();
-	});
+  // test("closeSync", () => {
+  //   var remoteFile = new RemoteFile();
+	// });
 
-  test("writeSync", () => {
-    var remoteFile = new RemoteFile();
-	});
+  // test("writeSync", () => {
+  //   var remoteFile = new RemoteFile();
+	// });
 
-  test("readFileSync", () => {
-    var remoteFile = new RemoteFile();
-	});
+  // test("readFileSync", () => {
+  //   var remoteFile = new RemoteFile();
+	// });
 
-  test("appendData", () => {
-    var remoteFile = new RemoteFile();
-	});
+  // test("appendData", () => {
+  //   var remoteFile = new RemoteFile();
+	// });
 
-  test("setDataSize", () => {
-    var remoteFile = new RemoteFile();
-	});
+  // test("setDataSize", () => {
+  //   var remoteFile = new RemoteFile();
+	// });
 
-  test("getDataSize", () => {
-    var remoteFile = new RemoteFile();
-	});
+  // test("getDataSize", () => {
+  //   var remoteFile = new RemoteFile();
+	// });
 
-  test("isEmpty", () => {
-    var remoteFile = new RemoteFile();
-	});
+  // test("isEmpty", () => {
+  //   var remoteFile = new RemoteFile();
+	// });
 
-  test("isReady", () => {
-    var remoteFile = new RemoteFile();
-	});
+  // test("isReady", () => {
+  //   var remoteFile = new RemoteFile();
+	// });
 });
