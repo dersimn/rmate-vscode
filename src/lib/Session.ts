@@ -41,16 +41,18 @@ class Session extends EventEmitter {
     this.online = false;
   }
 
-  parseChunk(buffer : any) {
-    L.trace('parseChunk', buffer);
+  parseChunk(buffer : Buffer) {
+    L.trace('parseChunk');
     let remoteFileIdx = this.currFileIdx;
 
     if (this.commands[remoteFileIdx] && this.remoteFiles[remoteFileIdx].isReady()) {
       return;
     }
 
-    var chunk = buffer.toString("utf8");
-    var lines = chunk.split("\n");
+    const chunk : string = buffer.toString("utf8");
+    L.trace('chunk to string', chunk);
+    const lines : string[] = chunk.split("\n");
+    L.trace('lines', lines);
 
     if (!this.commands[remoteFileIdx]) {
       this.commands.push(new Command(lines.shift()));
@@ -58,8 +60,10 @@ class Session extends EventEmitter {
     }
 
     if (this.remoteFiles[remoteFileIdx].isEmpty()) {
+      L.trace('pre-while lines.length', lines.length);
       while (lines.length) {
         var line = lines.shift().trim();
+        L.trace('line', line);
 
         if (!line) {
           break;
@@ -67,7 +71,9 @@ class Session extends EventEmitter {
 
         var s = line.split(':');
         var name = s.shift().trim();
+        L.trace('name', name);
         var value = s.join(":").trim();
+        L.trace('value', value);
 
         if (name === 'data') {
           this.remoteFiles[remoteFileIdx].setDataSize(parseInt(value, 10));

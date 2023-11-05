@@ -129,20 +129,17 @@ class RemoteFile {
   }
 
   getDataSize() : number {
-    L.trace('getDataSize');
-    L.debug('getDataSize', this.dataSize);
+    L.trace('getDataSize', this.dataSize);
     return this.dataSize;
   }
 
   isEmpty() : boolean {
-    L.trace('isEmpty');
-    L.debug('isEmpty?', this.dataSize === null);
+    L.trace('isEmpty', this.dataSize === null);
     return this.dataSize === null;
   }
 
   isReady() : boolean {
-    L.trace('isReady');
-    L.debug('isReady?', this.writtenDataSize === this.dataSize);
+    L.trace('isReady', this.writtenDataSize === this.dataSize);
     return this.writtenDataSize === this.dataSize;
   }
 }
