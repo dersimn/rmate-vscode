@@ -44,11 +44,6 @@ class Session extends EventEmitter {
     L.trace('buffer', buffer);
     L.trace('buffer.toString()', buffer.toString());
 
-    if (this.commands[this.currentId] && this.commands[this.currentId]?.remoteFile?.isReady()) {
-      L.error('parseChunk: currFileIdx pointer is messed up.');
-      return;
-    }
-
     if (!this.commands[this.currentId]?.remoteFile?.waitingForData) {
       while (buffer.length) {
         const indexOfNextNewLine = buffer.indexOf('\n');
