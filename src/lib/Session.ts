@@ -197,7 +197,7 @@ class Session extends EventEmitter {
       return;
     }
 
-    vscode.window.setStatusBarMessage(`Saving ${remoteFile.remoteBaseName} to ${remoteFile.remoteHost}`, 2000);
+    const statusBarMessage = vscode.window.setStatusBarMessage(`Saving ${remoteFile.remoteBaseName} to ${remoteFile.remoteHost}`, 2000);
 
     var buffer = remoteFile.readFileSync();
 
@@ -206,6 +206,8 @@ class Session extends EventEmitter {
     this.socket.write('data: ' + buffer.length + '\n');
     this.socket.write(buffer);
     this.socket.write('\n');
+
+    statusBarMessage.dispose();
   }
 
   close() {
