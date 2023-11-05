@@ -85,9 +85,9 @@ class Server extends EventEmitter {
 
       return {
         session,
-        label: 
-          ((remoteHost) ? remoteHost + ': ' : '') + 
-          session.remoteFiles.map(remoteFile => remoteFile.remoteBaseName).join(', '),
+        label: remoteHost ?? 'Unknown',
+        description: session.remoteFiles.map(remoteFile => remoteFile.remoteBaseName).join(', '),
+        iconPath: new vscode.ThemeIcon('file' + (session.remoteFiles.length > 1) ? 's' : '')
       };
     });
     L.trace('closeDocument > openFiles', openFiles);
