@@ -137,9 +137,13 @@ class RemoteFile {
   appendData(buffer : Buffer) : number {
     L.trace('appendData', buffer.length);
 
+    if (this.dataSize === null) {
+      throw new Error('dataSize has to be set before calling appendData');
+    }
+
     var length = buffer.length;
-    if (this.writtenDataSize + length > this._dataSize) {
-      length = this._dataSize - this.writtenDataSize;
+    if (this.writtenDataSize + length > this.dataSize) {
+      length = this.dataSize - this.writtenDataSize;
     }
 
     this.writtenDataSize += length;
@@ -147,7 +151,7 @@ class RemoteFile {
 
     this.writeSync(buffer, 0, length);
 
-    if (this.writtenDataSize === this._dataSize) {
+    if (this.writtenDataSize === this.dataSize) {
       this._waitingForData = false;
     }
 

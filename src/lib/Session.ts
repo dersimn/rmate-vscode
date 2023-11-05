@@ -93,9 +93,11 @@ class Session extends EventEmitter {
       }
     }
 
-    const appendedData = this.remoteFiles[this.currentId].appendData(buffer);
-    L.trace('appendedData', appendedData);
-    L.trace('buffer.length', buffer.length);
+    let appendedData = 0;
+    if (this.remoteFiles[this.currentId].waitingForData) {
+      appendedData = this.remoteFiles[this.currentId].appendData(buffer);
+      L.trace('appendedData', appendedData);
+    }
 
     if (this.remoteFiles[this.currentId].finished) {
       L.trace('remoteFile ready');
