@@ -118,9 +118,9 @@ class Session extends EventEmitter {
   }
 
   handleCommand(command : Command, remoteFileIdx : number) {
-    L.trace('handleCommand', command.getName(), remoteFileIdx);
+    L.trace('handleCommand', command.name, remoteFileIdx);
 
-    switch (command.getName()) {
+    switch (command.name) {
       case 'open':
         this.handleOpen(remoteFileIdx);
         break;
@@ -214,11 +214,11 @@ class Session extends EventEmitter {
   }
 
   handleConnect(command : Command) {
-    L.trace('handleConnect', command.getName());
+    L.trace('handleConnect', command.name);
   }
 
   handleList(command : Command) {
-    L.trace('handleList', command.getName());
+    L.trace('handleList', command.name);
   }
 
   send(cmd : string) {
