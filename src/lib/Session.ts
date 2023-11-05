@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 import * as net from 'net';
 import Logger from '../utils/Logger';
 import Command from './Command';
-import RemoteFile from './RemoteFile';
 
 const L = Logger.getLogger('Session');
 
@@ -12,7 +11,6 @@ class Session extends EventEmitter {
   socket : net.Socket;
   online : boolean;
   subscriptions : Array<vscode.Disposable> = [];
-  remoteFiles : Array<RemoteFile> = [];
   currFileIdx : number = 0;
   attempts : number = 0;
   closeTimeout : NodeJS.Timeout | undefined;
@@ -46,16 +44,12 @@ class Session extends EventEmitter {
     L.trace('buffer', buffer);
     L.trace('buffer.toString()', buffer.toString());
 
-    if (this.commands[this.currFileIdx] && this.remoteFiles[this.currFileIdx].isReady()) {
+    if (this.commands[this.currFileIdx] && this.commands[this.currFileIdx]?.remoteFile?.isReady()) {
       L.error('parseChunk: currFileIdx pointer is messed up.');
       return;
     }
 
-    if (!this.remoteFiles[this.currFileIdx]) {
-      this.remoteFiles.push(new RemoteFile());
-    }
-
-    if (!this.remoteFiles[this.currFileIdx].waitingForData) {
+    if (!this.commands[this.currFileIdx]?.remoteFile?.waitingForData) {
       while (buffer.length) {
         const indexOfNextNewLine = buffer.indexOf('\n');
         const line = buffer.subarray(0, indexOfNextNewLine).toString('utf8');
@@ -84,10 +78,10 @@ class Session extends EventEmitter {
         L.trace('value', value);
 
         if (name === 'data') {
-          this.remoteFiles[this.currFileIdx].setDataSize(parseInt(value, 10));
-          this.remoteFiles[this.currFileIdx].setToken(this.commands[this.currFileIdx].getVariable('token'));
-          this.remoteFiles[this.currFileIdx].setDisplayName(this.commands[this.currFileIdx].getVariable('display-name'));
-          this.remoteFiles[this.currFileIdx].initialize();
+          this.commands[this.currFileIdx].remoteFile.setDataSize(parseInt(value, 10));
+          this.commands[this.currFileIdx].remoteFile.setToken(this.commands[this.currFileIdx].getVariable('token'));
+          this.commands[this.currFileIdx].remoteFile.setDisplayName(this.commands[this.currFileIdx].getVariable('display-name'));
+          this.commands[this.currFileIdx].remoteFile.initialize();
 
           // At this point buffer is filled with data
           break;
@@ -97,15 +91,15 @@ class Session extends EventEmitter {
       }
     }
 
-    const appendedData = this.remoteFiles[this.currFileIdx].appendData(buffer);
+    const appendedData = this.commands[this.currFileIdx].remoteFile.appendData(buffer);
     L.trace('appendedData', appendedData);
     L.trace('buffer.length', buffer.length);
 
-    if (this.remoteFiles[this.currFileIdx].isReady()) {
+    if (this.commands[this.currFileIdx].remoteFile.isReady()) {
       L.trace('remoteFile ready');
 
-      this.remoteFiles[this.currFileIdx].closeSync();
-      this.handleCommand(this.commands[this.currFileIdx], this.currFileIdx);
+      this.commands[this.currFileIdx].remoteFile.closeSync();
+      this.handleCommand(this.currFileIdx);
       this.currFileIdx++;
 
       if (buffer.length > appendedData) {
@@ -117,21 +111,23 @@ class Session extends EventEmitter {
     }
   }
 
-  handleCommand(command : Command, remoteFileIdx : number) {
-    L.trace('handleCommand', command.name, remoteFileIdx);
+  handleCommand(remoteFileIdx : number) {
+    L.trace('handleCommand');
+    // L.trace('remoteFileIdx', remoteFileIdx);
+    L.trace('this.commands[remoteFileIdx].name', this.commands[remoteFileIdx].name);
 
-    switch (command.name) {
+    switch (this.commands[remoteFileIdx].name) {
       case 'open':
         this.handleOpen(remoteFileIdx);
         break;
 
       case 'list':
-        this.handleList(command);
+        this.handleList(this.commands[remoteFileIdx]);
         this.emit('list');
         break;
 
       case 'connect':
-        this.handleConnect(command);
+        this.handleConnect(this.commands[remoteFileIdx]);
         this.emit('connect');
         break;
     }
@@ -139,7 +135,7 @@ class Session extends EventEmitter {
 
   openInEditor(remoteFileIdx : number) {
     L.trace('openInEditor', remoteFileIdx);
-    let remoteFile = this.remoteFiles[remoteFileIdx];
+    let remoteFile = this.commands[remoteFileIdx].remoteFile;
 
     vscode.workspace.openTextDocument(remoteFile.getLocalFilePath()).then((textDocument : vscode.TextDocument) => {
       if (!textDocument && this.attempts < 3) {
@@ -247,7 +243,7 @@ class Session extends EventEmitter {
 
   save(remoteFileIdx : number) {
     L.trace('save');
-    let remoteFile = this.remoteFiles[remoteFileIdx];
+    let remoteFile = this.commands[remoteFileIdx].remoteFile;
 
     if (!this.isOnline()) {
       L.error("NOT online");

@@ -6,6 +6,7 @@ const L = Logger.getLogger('Command');
 class Command {
   private _name: string;
   variables : Map<string, any>;
+  remoteFile : RemoteFile = new RemoteFile();
 
   constructor(name : string) {
     L.trace('constructor', name);
