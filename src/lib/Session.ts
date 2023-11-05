@@ -235,8 +235,11 @@ class Session extends EventEmitter {
   }
 
   closeAll() {
-    for (let i = 0; i < this.remoteFiles.length; i++) {
-      this.close(i);
+    L.trace('closeAll', this.remoteFiles.length);
+
+    const count = this.remoteFiles.length;
+    for (let i = 0; i < count; i++) {
+      this.close(0);  // close function modifies the array (with .splice), always remove 0 here
     }
   }
 }
