@@ -8,7 +8,7 @@ import Logger from '../utils/Logger';
 const L = Logger.getLogger('RemoteFile');
 
 class RemoteFile {
-  dataSize : number | null = null;
+  private _dataSize : number | null = null;
   writtenDataSize : number = 0;
 
   token : string;
@@ -138,8 +138,8 @@ class RemoteFile {
     L.trace('appendData', buffer.length);
 
     var length = buffer.length;
-    if (this.writtenDataSize + length > this.dataSize) {
-      length = this.dataSize - this.writtenDataSize;
+    if (this.writtenDataSize + length > this._dataSize) {
+      length = this._dataSize - this.writtenDataSize;
     }
 
     this.writtenDataSize += length;
@@ -147,21 +147,24 @@ class RemoteFile {
 
     this.writeSync(buffer, 0, length);
 
-    if (this.writtenDataSize === this.dataSize) {
+    if (this.writtenDataSize === this._dataSize) {
       this._waitingForData = false;
     }
 
     return length;
   }
 
-  setDataSize(dataSize : number) {
-    L.trace('setDataSize', dataSize);
-    this.dataSize = dataSize;
+  set dataSize(dataSize : number) {
+    L.trace('set dataSize', dataSize);
+    if (this._dataSize === null) {
+      L.error('set dataSize - already set');
+      this._dataSize = dataSize;
+    }
   }
 
-  getDataSize() : number {
-    L.trace('getDataSize', this.dataSize);
-    return this.dataSize;
+  get dataSize() : number | null {
+    L.trace('get dataSize', this._dataSize);
+    return this._dataSize;
   }
 
   get waitingForData() : boolean {

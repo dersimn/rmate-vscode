@@ -78,7 +78,7 @@ class Session extends EventEmitter {
         L.trace('value', value);
 
         if (key === 'data') {
-          this.remoteFiles[this.currentId].setDataSize(parseInt(value, 10));
+          this.remoteFiles[this.currentId].dataSize = parseInt(value, 10);
           this.remoteFiles[this.currentId].initialize();
 
           // At this point buffer is filled with data
