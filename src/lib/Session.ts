@@ -2,12 +2,12 @@ import {EventEmitter} from 'events';
 import * as vscode from 'vscode';
 import * as net from 'net';
 import Logger from '../utils/Logger';
-import Command from './Command';
+import RemoteFile from './RemoteFile';
 
 const L = Logger.getLogger('Session');
 
 class Session extends EventEmitter {
-  commands : Array<Command> = [];
+  remoteFiles : RemoteFile[] = [];
   currentId : number = 0;
   socket : net.Socket;
   online : boolean;
@@ -44,11 +44,12 @@ class Session extends EventEmitter {
     L.trace('buffer', buffer);
     L.trace('buffer.toString()', buffer.toString());
 
-    if (!this.commands[this.currentId]) {
-      this.commands[this.currentId] = new Command();
+    if (!this.remoteFiles[this.currentId]) {
+      this.remoteFiles[this.currentId] = new RemoteFile();
     }
+    L.trace('here');
 
-    if (!this.commands[this.currentId].remoteFile.waitingForData) {
+    if (!this.remoteFiles[this.currentId].waitingForData) {
       while (buffer.length) {
         const indexOfNextNewLine = buffer.indexOf('\n');
         const line = buffer.subarray(0, indexOfNextNewLine).toString('utf8');
@@ -65,8 +66,8 @@ class Session extends EventEmitter {
           break;
         }
 
-        if (!this.commands[this.currentId].name) {
-          this.commands[this.currentId].name = line;
+        if (!this.remoteFiles[this.currentId].name) {
+          this.remoteFiles[this.currentId].name = line;
           continue;
         }
 
@@ -77,27 +78,28 @@ class Session extends EventEmitter {
         L.trace('value', value);
 
         if (key === 'data') {
-          this.commands[this.currentId].remoteFile.setDataSize(parseInt(value, 10));
-          this.commands[this.currentId].remoteFile.setToken(this.commands[this.currentId].getVariable('token'));
-          this.commands[this.currentId].remoteFile.setDisplayName(this.commands[this.currentId].getVariable('display-name'));
-          this.commands[this.currentId].remoteFile.initialize();
+          this.remoteFiles[this.currentId].setDataSize(parseInt(value, 10));
+
+          this.remoteFiles[this.currentId].setToken(this.remoteFiles[this.currentId].getVariable('token'));
+          this.remoteFiles[this.currentId].setDisplayName(this.remoteFiles[this.currentId].getVariable('display-name'));
+          this.remoteFiles[this.currentId].initialize();
 
           // At this point buffer is filled with data
           break;
         } else {
-          this.commands[this.currentId].setVariable(key, value);
+          this.remoteFiles[this.currentId].setVariable(key, value);
         }
       }
     }
 
-    const appendedData = this.commands[this.currentId].remoteFile.appendData(buffer);
+    const appendedData = this.remoteFiles[this.currentId].appendData(buffer);
     L.trace('appendedData', appendedData);
     L.trace('buffer.length', buffer.length);
 
-    if (this.commands[this.currentId].remoteFile.isReady()) {
+    if (this.remoteFiles[this.currentId].isReady()) {
       L.trace('remoteFile ready');
 
-      this.commands[this.currentId].remoteFile.closeSync();
+      this.remoteFiles[this.currentId].closeSync();
       this.openInEditor(this.currentId);
       this.currentId++;
 
@@ -112,7 +114,7 @@ class Session extends EventEmitter {
 
   openInEditor(remoteFileIdx : number) {
     L.trace('openInEditor', remoteFileIdx);
-    let remoteFile = this.commands[remoteFileIdx].remoteFile;
+    let remoteFile = this.remoteFiles[remoteFileIdx];
 
     vscode.workspace.openTextDocument(remoteFile.getLocalFilePath()).then((textDocument : vscode.TextDocument) => {
       if (!textDocument && this.attempts < 3) {
@@ -173,7 +175,7 @@ class Session extends EventEmitter {
   }
 
   showSelectedLine(textEditor : vscode.TextEditor, remoteFileIdx : number) {
-    var selection = +(this.commands[remoteFileIdx].getVariable('selection'));
+    var selection = +(this.remoteFiles[remoteFileIdx].getVariable('selection'));
     if (selection) {
       var line = ((selection-1) > 0) ? (selection-1) : 0;
       textEditor.revealRange(new vscode.Range(line, 0, line, 0), vscode.TextEditorRevealType.InCenter);
@@ -191,7 +193,7 @@ class Session extends EventEmitter {
 
   save(remoteFileIdx : number) {
     L.trace('save');
-    let remoteFile = this.commands[remoteFileIdx].remoteFile;
+    let remoteFile = this.remoteFiles[remoteFileIdx];
 
     if (!this.isOnline()) {
       L.error("NOT online");

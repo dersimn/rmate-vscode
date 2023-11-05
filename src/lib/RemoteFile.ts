@@ -22,8 +22,30 @@ class RemoteFile {
   private _waitingForData : boolean = false;
   private _finished : boolean = false;
 
+  private _name: string | undefined;
+  variables : Map<string, any> = new Map();
+
   constructor() {
     L.trace('constructor');
+  }
+
+  get name() : string | undefined {
+    return this._name;
+  }
+  set name(name : string) {
+    if (!this._name) {
+      this._name = name;
+    }
+  }
+
+  setVariable(key : string, value : any) {
+    L.trace('addVariable', key, value);
+    this.variables.set(key, value);
+  }
+
+  getVariable(key : string) : any {
+    L.trace('getVariable', key);
+    return this.variables.get(key);
   }
 
   setToken(token : string) {

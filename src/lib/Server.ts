@@ -84,8 +84,8 @@ class Server extends EventEmitter {
       return {
         session,
         label: 
-          session.commands[0].remoteFile.getHost() + ': ' + 
-          session.commands.map(command => command.remoteFile.getRemoteBaseName()).join(', '),
+          session.remoteFiles[0].getHost() + ': ' + 
+          session.remoteFiles.map(remoteFile => remoteFile.getRemoteBaseName()).join(', '),
       };
     });
     L.trace('closeDocument > openFiles', openFiles);
