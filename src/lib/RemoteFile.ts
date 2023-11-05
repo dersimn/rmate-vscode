@@ -8,20 +8,18 @@ import Logger from '../utils/Logger';
 const L = Logger.getLogger('RemoteFile');
 
 class RemoteFile {
-  private _dataSize : number | null = null;
-  writtenDataSize : number = 0;
-
-  private _token : string | null = null;
-  private _localFilePath!: string;
-
-  private fileDescriptor : number | null = null;
-
-  private _waitingForData : boolean = false;
-
+  // Inputs from rmate
   private _name: string | null = null;
+  private _displayName : string | null = null;
+  private _token : string | null = null;
+  private _dataSize : number | null = null;
   variables : Map<string, any> = new Map();
 
-  private _displayName : string | null = null;
+  // Our variables
+  private _localFilePath!: string;
+  private fileDescriptor : number | null = null;
+  writtenDataSize : number = 0;
+  private _waitingForData : boolean = false;
 
   constructor() {
     L.trace('constructor');
