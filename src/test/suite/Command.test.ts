@@ -29,13 +29,13 @@ suite("Command Tests", () => {
     assert.equal(name, command.name);
   });
 
-  test("addVariable", () => {
+  test("setVariable", () => {
     var name = "test";
     var key = "variableKey";
     var value = "variableValue";
     var command = new Command(name);
 
-    command.addVariable(key, value);
+    command.setVariable(key, value);
     assert.equal(value, command.getVariable(key));
   });
 
@@ -45,7 +45,7 @@ suite("Command Tests", () => {
     var value = "variableValue";
     var command = new Command(name);
 
-    command.addVariable(key, value);
+    command.setVariable(key, value);
     assert.equal(value, command.getVariable(key));
   });
 });

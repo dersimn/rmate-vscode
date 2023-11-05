@@ -23,7 +23,7 @@ class Command {
     }
   }
 
-  addVariable(key : string, value : any) {
+  setVariable(key : string, value : any) {
     L.trace('addVariable', key, value);
     this.variables.set(key, value);
   }

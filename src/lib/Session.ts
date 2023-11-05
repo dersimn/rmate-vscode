@@ -85,7 +85,7 @@ class Session extends EventEmitter {
           // At this point buffer is filled with data
           break;
         } else {
-          this.commands[this.currentId].addVariable(key, value);
+          this.commands[this.currentId].setVariable(key, value);
         }
       }
     }
