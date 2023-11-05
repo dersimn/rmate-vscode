@@ -100,7 +100,7 @@ class RemoteFile {
 
   initialize() {
     L.trace('initialize');
-    this._localFilePath = path.join(os.tmpdir(), randomString(10), this.remoteBaseName || randomString(10));
+    this._localFilePath = path.join(os.tmpdir(), 'rmate-vscode', randomString(10), this.remoteHost || randomString(10), this.remoteBaseName || randomString(10));
     fse.mkdirsSync(this.localDirectoryName);
     this.fileDescriptor = fs.openSync(this.localFilePath, 'w');
     this._waitingForData = true;
