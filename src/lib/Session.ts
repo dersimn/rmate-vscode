@@ -71,13 +71,13 @@ class Session extends EventEmitter {
           continue;
         }
 
-        var s = line.split(':');
-        var name = s.shift().trim();
-        L.trace('name', name);
-        var value = s.join(":").trim();
+        // Lines contain data like: "key: value\n"
+        const key = line.substring(0, line.indexOf(':'));
+        L.trace('key', key);
+        const value = line.substring(line.indexOf(':') + 2);
         L.trace('value', value);
 
-        if (name === 'data') {
+        if (key === 'data') {
           this.commands[this.currentId].remoteFile.setDataSize(parseInt(value, 10));
           this.commands[this.currentId].remoteFile.setToken(this.commands[this.currentId].getVariable('token'));
           this.commands[this.currentId].remoteFile.setDisplayName(this.commands[this.currentId].getVariable('display-name'));
@@ -86,7 +86,7 @@ class Session extends EventEmitter {
           // At this point buffer is filled with data
           break;
         } else {
-          this.commands[this.currentId].addVariable(name, value);
+          this.commands[this.currentId].addVariable(key, value);
         }
       }
     }
