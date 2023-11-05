@@ -11,7 +11,7 @@ class RemoteFile {
   private _dataSize : number | null = null;
   writtenDataSize : number = 0;
 
-  private _token : string | null;
+  private _token : string | null = null;
   localFilePath : string;
 
   private fileDescriptor : number | null = null;
