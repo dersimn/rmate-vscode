@@ -84,9 +84,9 @@ class Session extends EventEmitter {
           // At this point buffer is filled with data
           break;
         } else if (key === 'token') {
-          this.remoteFiles[this.currentId].setToken(value);
+          this.remoteFiles[this.currentId].token = value;
         } else if (key === 'display-name') {
-          this.remoteFiles[this.currentId].setDisplayName(value);
+          this.remoteFiles[this.currentId].displayName = value;
         } else {
           this.remoteFiles[this.currentId].setVariable(key, value);
         }
@@ -131,14 +131,14 @@ class Session extends EventEmitter {
 
       } else if (!textDocument) {
         L.error("Could NOT open the file", remoteFile.getLocalFilePath());
-        vscode.window.showErrorMessage(`Failed to open file ${remoteFile.getRemoteBaseName()}`);
+        vscode.window.showErrorMessage(`Failed to open file ${remoteFile.remoteBaseName}`);
         return;
       }
 
       vscode.window.showTextDocument(textDocument, {preview: false}).then((textEditor : vscode.TextEditor) => {
         this.handleChanges(textDocument, remoteFileIdx);
-        L.info(`Opening ${remoteFile.getRemoteBaseName()} from ${remoteFile.getHost()}`);
-        vscode.window.setStatusBarMessage(`Opening ${remoteFile.getRemoteBaseName()} from ${remoteFile.getHost()}`, 2000);
+        L.info(`Opening ${remoteFile.remoteBaseName} from ${remoteFile.remoteHost}`);
+        vscode.window.setStatusBarMessage(`Opening ${remoteFile.remoteBaseName} from ${remoteFile.remoteHost}`, 2000);
 
         this.showSelectedLine(textEditor, remoteFileIdx);
       });
@@ -200,16 +200,16 @@ class Session extends EventEmitter {
 
     if (!this.isOnline()) {
       L.error("NOT online");
-      vscode.window.showErrorMessage(`Error saving ${remoteFile.getRemoteBaseName()} to ${remoteFile.getHost()}`);
+      vscode.window.showErrorMessage(`Error saving ${remoteFile.remoteBaseName} to ${remoteFile.remoteHost}`);
       return;
     }
 
-    vscode.window.setStatusBarMessage(`Saving ${remoteFile.getRemoteBaseName()} to ${remoteFile.getHost()}`, 2000);
+    vscode.window.setStatusBarMessage(`Saving ${remoteFile.remoteBaseName} to ${remoteFile.remoteHost}`, 2000);
 
     var buffer = remoteFile.readFileSync();
 
     this.send("save");
-    this.send(`token: ${remoteFile.getToken()}`);
+    this.send(`token: ${remoteFile.token}`);
     this.send("data: " + buffer.length);
     this.socket.write(buffer);
     this.send("");

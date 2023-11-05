@@ -11,30 +11,64 @@ class RemoteFile {
   private _dataSize : number | null = null;
   writtenDataSize : number = 0;
 
-  token : string;
+  private _token : string | null;
   localFilePath : string;
-
-  remoteHost : string;
-  remoteBaseName : string;
 
   private fileDescriptor : number | null = null;
 
   private _waitingForData : boolean = false;
 
-  private _name: string | undefined;
+  private _name: string | null = null;
   variables : Map<string, any> = new Map();
+
+  private _displayName : string | null = null;
 
   constructor() {
     L.trace('constructor');
   }
 
-  get name() : string | undefined {
+  get name() : string | null {
     return this._name;
   }
   set name(name : string) {
     if (!this._name) {
       this._name = name;
     }
+  }
+
+  get token() : string | null {
+    return this._token;
+  }
+  set token(token : string) {
+    if (!this._token) {
+      this._token = token;
+    }
+  }
+
+  get displayName() : string | null {
+    return this._displayName;
+  }
+  set displayName(displayName : string) {
+    if (!this._displayName) {
+      this._displayName = displayName;
+    }
+  }
+
+  get remoteHost() : string | null {
+    if (this.displayName === null) {
+      return null;
+    }
+
+    // Lines contain data like: "hostname: filename"
+    return this.displayName.split(':').shift() ?? null;
+  }
+  get remoteBaseName() : string | null {
+    if (this.displayName === null) {
+      return null;
+    }
+
+    // Lines contain data like: "hostname: filename"
+    return this.displayName.split(':').shift().join(':') ?? null;
   }
 
   setVariable(key : string, value : any) {
@@ -47,41 +81,9 @@ class RemoteFile {
     return this.variables.get(key);
   }
 
-  setToken(token : string) {
-    this.token = token;
-  }
-
-  getToken() {
-    L.trace('getRemoteBaseName');
-    return this.token;
-  }
-
-  setDisplayName(displayName : string) {
-    var displayNameSplit = displayName.split(':');
-
-    if (displayNameSplit.length === 1) {
-      this.remoteHost = "";
-
-    } else {
-      this.remoteHost = displayNameSplit.shift();
-    }
-
-    this.remoteBaseName = displayNameSplit.join(":");
-  }
-
-  getHost() {
-    L.trace('getHost', this.remoteHost);
-    return this.remoteHost;
-  }
-
-  getRemoteBaseName() {
-    L.trace('getRemoteBaseName');
-    return this.remoteBaseName;
-  }
-
   createLocalFilePath() {
     L.trace('createLocalFilePath');
-    this.localFilePath = path.join(os.tmpdir(), randomString(10), this.getRemoteBaseName());
+    this.localFilePath = path.join(os.tmpdir(), randomString(10), this.remoteBaseName || randomString(10));
   }
 
   getLocalDirectoryName() {
