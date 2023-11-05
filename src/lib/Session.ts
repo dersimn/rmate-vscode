@@ -8,10 +8,10 @@ const L = Logger.getLogger('Session');
 
 class Session extends EventEmitter {
   commands : Array<Command> = [];
+  currentId : number = 0;
   socket : net.Socket;
   online : boolean;
   subscriptions : Array<vscode.Disposable> = [];
-  currFileIdx : number = 0;
   attempts : number = 0;
   closeTimeout : NodeJS.Timeout | undefined;
 
@@ -44,12 +44,12 @@ class Session extends EventEmitter {
     L.trace('buffer', buffer);
     L.trace('buffer.toString()', buffer.toString());
 
-    if (this.commands[this.currFileIdx] && this.commands[this.currFileIdx]?.remoteFile?.isReady()) {
+    if (this.commands[this.currentId] && this.commands[this.currentId]?.remoteFile?.isReady()) {
       L.error('parseChunk: currFileIdx pointer is messed up.');
       return;
     }
 
-    if (!this.commands[this.currFileIdx]?.remoteFile?.waitingForData) {
+    if (!this.commands[this.currentId]?.remoteFile?.waitingForData) {
       while (buffer.length) {
         const indexOfNextNewLine = buffer.indexOf('\n');
         const line = buffer.subarray(0, indexOfNextNewLine).toString('utf8');
@@ -66,7 +66,7 @@ class Session extends EventEmitter {
           break;
         }
 
-        if (!this.commands[this.currFileIdx]) {
+        if (!this.commands[this.currentId]) {
           this.commands.push(new Command(line));
           continue;
         }
@@ -78,29 +78,29 @@ class Session extends EventEmitter {
         L.trace('value', value);
 
         if (name === 'data') {
-          this.commands[this.currFileIdx].remoteFile.setDataSize(parseInt(value, 10));
-          this.commands[this.currFileIdx].remoteFile.setToken(this.commands[this.currFileIdx].getVariable('token'));
-          this.commands[this.currFileIdx].remoteFile.setDisplayName(this.commands[this.currFileIdx].getVariable('display-name'));
-          this.commands[this.currFileIdx].remoteFile.initialize();
+          this.commands[this.currentId].remoteFile.setDataSize(parseInt(value, 10));
+          this.commands[this.currentId].remoteFile.setToken(this.commands[this.currentId].getVariable('token'));
+          this.commands[this.currentId].remoteFile.setDisplayName(this.commands[this.currentId].getVariable('display-name'));
+          this.commands[this.currentId].remoteFile.initialize();
 
           // At this point buffer is filled with data
           break;
         } else {
-          this.commands[this.currFileIdx].addVariable(name, value);
+          this.commands[this.currentId].addVariable(name, value);
         }
       }
     }
 
-    const appendedData = this.commands[this.currFileIdx].remoteFile.appendData(buffer);
+    const appendedData = this.commands[this.currentId].remoteFile.appendData(buffer);
     L.trace('appendedData', appendedData);
     L.trace('buffer.length', buffer.length);
 
-    if (this.commands[this.currFileIdx].remoteFile.isReady()) {
+    if (this.commands[this.currentId].remoteFile.isReady()) {
       L.trace('remoteFile ready');
 
-      this.commands[this.currFileIdx].remoteFile.closeSync();
-      this.handleCommand(this.currFileIdx);
-      this.currFileIdx++;
+      this.commands[this.currentId].remoteFile.closeSync();
+      this.handleCommand(this.currentId);
+      this.currentId++;
 
       if (buffer.length > appendedData) {
         L.trace('more commands in chunk');
