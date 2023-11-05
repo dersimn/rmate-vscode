@@ -19,6 +19,9 @@ class RemoteFile {
 
   fd : number;
 
+  private _waitingForData : boolean = false;
+  private _finished : boolean = false;
+
   constructor() {
     L.trace('constructor');
   }
@@ -94,6 +97,7 @@ class RemoteFile {
     this.createLocalFilePath();
     this.createLocalDir();
     this.openSync();
+    this._waitingForData = true;
   }
 
   writeSync(buffer : any, offset : number, length : number) {
@@ -122,6 +126,11 @@ class RemoteFile {
 
     this.writeSync(buffer, 0, length);
 
+    if (this.writtenDataSize === this.dataSize) {
+      this._waitingForData = false;
+      this._finished = true;
+    }
+
     return length;
   }
 
@@ -143,6 +152,13 @@ class RemoteFile {
   isReady() : boolean {
     L.trace('isReady', this.writtenDataSize === this.dataSize);
     return this.writtenDataSize === this.dataSize;
+  }
+
+  get waitingForData() : boolean {
+    return this._waitingForData;
+  }
+  get finished() : boolean {
+    return this._finished;
   }
 }
 

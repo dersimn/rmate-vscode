@@ -42,34 +42,41 @@ class Session extends EventEmitter {
   }
 
   parseChunk(buffer : Buffer) {
-    L.trace('parseChunk', buffer);
+    L.trace('parseChunk', buffer.length);
+    L.trace('buffer', buffer);
+    L.trace('buffer.toString()', buffer.toString());
 
     if (this.commands[this.currFileIdx] && this.remoteFiles[this.currFileIdx].isReady()) {
+      L.error('parseChunk: currFileIdx pointer is messed up.');
       return;
     }
 
-    const chunk : string = buffer.toString("utf8");
-    L.trace('chunk to string', chunk);
-    const lines : string[] = chunk.split("\n");
-    L.trace('lines', lines);
+    if (!this.remoteFiles[this.currFileIdx]) {
+      this.remoteFiles.push(new RemoteFile());
+    }
 
-    for (let i = 0; i < lines.length; i++) {
-      let appendedData : number = 0;
-      let indexOfData : number | null = null;
-      const line = lines[i];
-      L.trace('line', line);
+    if (!this.remoteFiles[this.currFileIdx].waitingForData) {
+      while (buffer.length) {
+        const indexOfNextNewLine = buffer.indexOf('\n');
+        const line = buffer.subarray(0, indexOfNextNewLine).toString('utf8');
+        L.trace('line', line);
+        buffer = buffer.subarray(indexOfNextNewLine + 1);
 
-      if (!line) {
-        continue;
-      }
+        if (!line) {
+          // Ignore empty lines in between
+          continue;
+        }
 
-      if (!this.commands[this.currFileIdx]) {
-        this.commands.push(new Command(line));
-        this.remoteFiles.push(new RemoteFile());
-        continue;
-      }
+        if (line === '.\n') {
+          // Client is finished sending
+          break;
+        }
 
-      if (this.remoteFiles[this.currFileIdx].isEmpty()) {
+        if (!this.commands[this.currFileIdx]) {
+          this.commands.push(new Command(line));
+          continue;
+        }
+
         var s = line.split(':');
         var name = s.shift().trim();
         L.trace('name', name);
@@ -82,36 +89,30 @@ class Session extends EventEmitter {
           this.remoteFiles[this.currFileIdx].setDisplayName(this.commands[this.currFileIdx].getVariable('display-name'));
           this.remoteFiles[this.currFileIdx].initialize();
 
-          indexOfData = buffer.indexOf(lines[i+1]);
-          appendedData = this.remoteFiles[this.currFileIdx].appendData(
-            buffer.subarray(
-              indexOfData
-            )
-          );
-
+          // At this point buffer is filled with data
+          break;
         } else {
           this.commands[this.currFileIdx].addVariable(name, value);
         }
-      } else {
-        appendedData = this.remoteFiles[this.currFileIdx].appendData(buffer);
       }
+    }
 
-      if (this.remoteFiles[this.currFileIdx].isReady()) {
-        L.trace('remoteFile ready');
-        L.trace('appendedData', appendedData);
-        L.trace('buffer.length', buffer.length);
-        L.trace('indexOfData', indexOfData);
+    const appendedData = this.remoteFiles[this.currFileIdx].appendData(buffer);
+    L.trace('appendedData', appendedData);
+    L.trace('buffer.length', buffer.length);
 
-        this.remoteFiles[this.currFileIdx].closeSync();
-        this.handleCommand(this.commands[this.currFileIdx], this.currFileIdx);
-        this.currFileIdx++;
+    if (this.remoteFiles[this.currFileIdx].isReady()) {
+      L.trace('remoteFile ready');
 
-        if (buffer.length - (indexOfData ?? 0) - appendedData) {
-          L.trace('more commands in chunk');
+      this.remoteFiles[this.currFileIdx].closeSync();
+      this.handleCommand(this.commands[this.currFileIdx], this.currFileIdx);
+      this.currFileIdx++;
 
-          this.parseChunk(buffer.subarray((indexOfData ?? 0) + appendedData));
-          return;
-        }
+      if (buffer.length > appendedData) {
+        L.trace('more commands in chunk');
+
+        // pass remaining buffer (minus '\n' at the end)
+        this.parseChunk(buffer.subarray(appendedData + 1));
       }
     }
   }
