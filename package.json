@@ -72,6 +72,10 @@
       {
         "command": "extension.closeDocument",
         "title": "Remote: Close Document"
+      },
+      {
+        "command": "extension.closeAllDocuments",
+        "title": "Remote: Close all open Documents"
       }
     ]
   },

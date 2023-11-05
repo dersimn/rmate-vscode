@@ -56,6 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('extension.stopServer', stopServer));
   context.subscriptions.push(vscode.commands.registerCommand('extension.restartServer', restartServer));
   context.subscriptions.push(vscode.commands.registerCommand('extension.closeDocument', closeDocument));
+  context.subscriptions.push(vscode.commands.registerCommand('extension.closeAllDocuments', closeAllDocuments));
 
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
     L.trace('onDidChangeConfiguration');
@@ -103,10 +104,19 @@ async function closeDocument() {
   });
   L.trace('closeDocument > openFiles', openFiles);
 
-  const selected = await vscode.window.showQuickPick(openFiles, {canPickMany: true});
+  const selected = await vscode.window.showQuickPick(openFiles);
   L.trace('closeDocument > selected', selected);
 
-  for (const pick of selected ?? []) {
-    pick.session.closeAll();
+  selected?.session.closeAll();
+}
+
+async function closeAllDocuments() {
+  if (!server) {
+    vscode.window.showErrorMessage('Server is not started.');
+    return;
+  }
+
+  for (const session of server.sessions) {
+    session.closeAll();
   }
 }
