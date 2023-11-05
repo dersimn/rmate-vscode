@@ -81,10 +81,13 @@ class Server extends EventEmitter {
     }
 
     const openFiles: Array<SessionQuickPick> = [...this.sessions].map(session => {
+      const remoteHost = session.remoteFiles[0].remoteHost;
+      L.trace(remoteHost, session.remoteFiles);
+
       return {
         session,
         label: 
-          session.remoteFiles[0].remoteHost + ': ' + 
+          ((remoteHost) ? remoteHost + ': ' : '') + 
           session.remoteFiles.map(remoteFile => remoteFile.remoteBaseName).join(', '),
       };
     });
