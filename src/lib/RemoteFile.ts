@@ -59,7 +59,7 @@ class RemoteFile {
       return null;
     }
 
-    // Lines contain data like: "hostname: filename"
+    // contains data like: "hostname:filename-may-contain:as-well"
     return this.displayName.split(':').shift() ?? null;
   }
   get remoteBaseName() : string | null {
@@ -67,8 +67,10 @@ class RemoteFile {
       return null;
     }
 
-    // Lines contain data like: "hostname: filename"
-    return this.displayName.split(':').shift().join(':') ?? null;
+    // contains data like: "hostname:filename-may-contain:as-well"
+    const splitArray = this.displayName.split(':');
+    splitArray.shift();
+    return splitArray.join(':') ?? null;
   }
 
   setVariable(key : string, value : any) {
