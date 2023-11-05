@@ -71,34 +71,6 @@ class Server extends EventEmitter {
     this.server.close();
     this.emit('stopped');
   }
-
-  async closeDocument() {
-    L.trace('closeDocument');
-
-    interface SessionQuickPick extends vscode.QuickPickItem {
-      session: Session
-    }
-
-    const openFiles: Array<SessionQuickPick> = [...this.sessions].map(session => {
-      const remoteHost = session.remoteFiles[0].remoteHost;
-      L.trace(remoteHost, session.remoteFiles);
-
-      return {
-        session,
-        label: remoteHost ?? 'Unknown',
-        description: session.remoteFiles.map(remoteFile => remoteFile.remoteBaseName).join(', '),
-        iconPath: new vscode.ThemeIcon('file' + (session.remoteFiles.length > 1) ? 's' : '')
-      };
-    });
-    L.trace('closeDocument > openFiles', openFiles);
-
-    const selected = await vscode.window.showQuickPick(openFiles, {canPickMany: true});
-    L.trace('closeDocument > selected', selected);
-
-    for (const pick of selected ?? []) {
-      pick.session.closeAll();
-    }
-  }
 }
 
 export default Server;

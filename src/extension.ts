@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import Server from './lib/Server';
 import Logger from './utils/Logger';
 import StatusBarItem from './lib/StatusBarItem';
+import Session from './lib/Session';
 
 const L = Logger.getLogger('extension');
 
@@ -54,14 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('extension.startServer', startServer));
   context.subscriptions.push(vscode.commands.registerCommand('extension.stopServer', stopServer));
   context.subscriptions.push(vscode.commands.registerCommand('extension.restartServer', restartServer));
-  context.subscriptions.push(vscode.commands.registerCommand('extension.closeDocument', () => {
-    if (!server) {
-      vscode.window.showErrorMessage('Server is not started.');
-      return;
-    }
-
-    server.closeDocument();
-  }));
+  context.subscriptions.push(vscode.commands.registerCommand('extension.closeDocument', closeDocument));
 
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
     L.trace('onDidChangeConfiguration');
@@ -82,4 +76,37 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
   stopServer();
+}
+
+async function closeDocument() {
+  L.trace('closeDocument');
+
+  if (!server) {
+    vscode.window.showErrorMessage('Server is not started.');
+    return;
+  }
+
+  interface SessionQuickPick extends vscode.QuickPickItem {
+    session: Session
+  }
+
+  const openFiles: Array<SessionQuickPick> = [...server.sessions].map(session => {
+    const remoteHost = session.remoteFiles[0].remoteHost;
+    L.trace(remoteHost, session.remoteFiles);
+
+    return {
+      session,
+      label: remoteHost ?? 'Unknown',
+      description: session.remoteFiles.map(remoteFile => remoteFile.remoteBaseName).join(', '),
+      iconPath: new vscode.ThemeIcon('file' + (session.remoteFiles.length > 1) ? 's' : '')
+    };
+  });
+  L.trace('closeDocument > openFiles', openFiles);
+
+  const selected = await vscode.window.showQuickPick(openFiles, {canPickMany: true});
+  L.trace('closeDocument > selected', selected);
+
+  for (const pick of selected ?? []) {
+    pick.session.closeAll();
+  }
 }
