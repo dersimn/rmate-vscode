@@ -43,9 +43,8 @@ class Session extends EventEmitter {
 
   parseChunk(buffer : Buffer) {
     L.trace('parseChunk');
-    let remoteFileIdx = this.currFileIdx;
 
-    if (this.commands[remoteFileIdx] && this.remoteFiles[remoteFileIdx].isReady()) {
+    if (this.commands[this.currFileIdx] && this.remoteFiles[this.currFileIdx].isReady()) {
       return;
     }
 
@@ -54,21 +53,21 @@ class Session extends EventEmitter {
     const lines : string[] = chunk.split("\n");
     L.trace('lines', lines);
 
-    if (!this.commands[remoteFileIdx]) {
-      this.commands.push(new Command(lines.shift()));
-      this.remoteFiles.push(new RemoteFile());
-    }
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      L.trace('line', line);
 
-    if (this.remoteFiles[remoteFileIdx].isEmpty()) {
-      L.trace('pre-while lines.length', lines.length);
-      while (lines.length) {
-        var line = lines.shift().trim();
-        L.trace('line', line);
+      if (!line) {
+        continue;
+      }
 
-        if (!line) {
-          break;
-        }
+      if (!this.commands[this.currFileIdx]) {
+        this.commands.push(new Command(line));
+        this.remoteFiles.push(new RemoteFile());
+        continue;
+      }
 
+      if (this.remoteFiles[this.currFileIdx].isEmpty()) {
         var s = line.split(':');
         var name = s.shift().trim();
         L.trace('name', name);
@@ -76,27 +75,30 @@ class Session extends EventEmitter {
         L.trace('value', value);
 
         if (name === 'data') {
-          this.remoteFiles[remoteFileIdx].setDataSize(parseInt(value, 10));
-          this.remoteFiles[remoteFileIdx].setToken(this.commands[remoteFileIdx].getVariable('token'));
-          this.remoteFiles[remoteFileIdx].setDisplayName(this.commands[remoteFileIdx].getVariable('display-name'));
-          this.remoteFiles[remoteFileIdx].initialize();
+          this.remoteFiles[this.currFileIdx].setDataSize(parseInt(value, 10));
+          this.remoteFiles[this.currFileIdx].setToken(this.commands[this.currFileIdx].getVariable('token'));
+          this.remoteFiles[this.currFileIdx].setDisplayName(this.commands[this.currFileIdx].getVariable('display-name'));
+          this.remoteFiles[this.currFileIdx].initialize();
 
-          this.remoteFiles[remoteFileIdx].appendData(buffer.slice(buffer.indexOf(line) + Buffer.byteLength(`${line}\n`)));
+          this.remoteFiles[this.currFileIdx].appendData(
+            buffer.subarray(
+              buffer.indexOf(lines[i+1])
+            )
+          );
           break;
 
         } else {
-          this.commands[remoteFileIdx].addVariable(name, value);
+          this.commands[this.currFileIdx].addVariable(name, value);
         }
+      } else {
+        this.remoteFiles[this.currFileIdx].appendData(buffer);
       }
 
-    } else {
-      this.remoteFiles[remoteFileIdx].appendData(buffer);
-    }
-
-    if (this.remoteFiles[remoteFileIdx].isReady()) {
-      this.remoteFiles[remoteFileIdx].closeSync();
-      this.handleCommand(this.commands[this.currFileIdx], remoteFileIdx);
-      this.currFileIdx++;
+      if (this.remoteFiles[this.currFileIdx].isReady()) {
+        this.remoteFiles[this.currFileIdx].closeSync();
+        this.handleCommand(this.commands[this.currFileIdx], this.currFileIdx);
+        this.currFileIdx++;
+      }
     }
   }
 
