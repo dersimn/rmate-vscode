@@ -44,12 +44,7 @@ class Session extends EventEmitter {
     L.trace('buffer', buffer);
     L.trace('buffer.toString()', buffer.toString());
 
-    if (!this.remoteFiles[this.currentId]) {
-      this.remoteFiles[this.currentId] = new RemoteFile();
-    }
-    L.trace('here');
-
-    if (!this.remoteFiles[this.currentId].waitingForData) {
+    if (!this.remoteFiles[this.currentId]?.waitingForData) {
       while (buffer.length) {
         const indexOfNextNewLine = buffer.indexOf('\n');
         const line = buffer.subarray(0, indexOfNextNewLine).toString('utf8');
@@ -61,9 +56,13 @@ class Session extends EventEmitter {
           continue;
         }
 
-        if (line === '.\n') {
+        if (line === '.') {
           // Client is finished sending
-          break;
+          return;
+        }
+
+        if (!this.remoteFiles[this.currentId]) {
+          this.remoteFiles[this.currentId] = new RemoteFile();
         }
 
         if (!this.remoteFiles[this.currentId].name) {
