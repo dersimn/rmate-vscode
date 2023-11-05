@@ -109,7 +109,7 @@ class RemoteFile {
     return fs.readFileSync(this.localFilePath);
   }
 
-  appendData(buffer : Buffer) {
+  appendData(buffer : Buffer) : number {
     L.trace('appendData', buffer.length);
 
     var length = buffer.length;
@@ -121,6 +121,8 @@ class RemoteFile {
     L.debug("writtenDataSize", this.writtenDataSize);
 
     this.writeSync(buffer, 0, length);
+
+    return length;
   }
 
   setDataSize(dataSize : number) {

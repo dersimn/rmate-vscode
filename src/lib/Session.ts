@@ -29,7 +29,7 @@ class Session extends EventEmitter {
   }
 
   onSocketData(chunk : Buffer) {
-    L.trace('onSocketData', chunk);
+    L.trace('onSocketData');
 
     if (chunk) {
       this.parseChunk(chunk);
@@ -42,7 +42,7 @@ class Session extends EventEmitter {
   }
 
   parseChunk(buffer : Buffer) {
-    L.trace('parseChunk');
+    L.trace('parseChunk', buffer);
 
     if (this.commands[this.currFileIdx] && this.remoteFiles[this.currFileIdx].isReady()) {
       return;
@@ -54,6 +54,8 @@ class Session extends EventEmitter {
     L.trace('lines', lines);
 
     for (let i = 0; i < lines.length; i++) {
+      let appendedData : number = 0;
+      let indexOfData : number | null = null;
       const line = lines[i];
       L.trace('line', line);
 
@@ -80,24 +82,36 @@ class Session extends EventEmitter {
           this.remoteFiles[this.currFileIdx].setDisplayName(this.commands[this.currFileIdx].getVariable('display-name'));
           this.remoteFiles[this.currFileIdx].initialize();
 
-          this.remoteFiles[this.currFileIdx].appendData(
+          indexOfData = buffer.indexOf(lines[i+1]);
+          appendedData = this.remoteFiles[this.currFileIdx].appendData(
             buffer.subarray(
-              buffer.indexOf(lines[i+1])
+              indexOfData
             )
           );
-          break;
 
         } else {
           this.commands[this.currFileIdx].addVariable(name, value);
         }
       } else {
-        this.remoteFiles[this.currFileIdx].appendData(buffer);
+        appendedData = this.remoteFiles[this.currFileIdx].appendData(buffer);
       }
 
       if (this.remoteFiles[this.currFileIdx].isReady()) {
+        L.trace('remoteFile ready');
+        L.trace('appendedData', appendedData);
+        L.trace('buffer.length', buffer.length);
+        L.trace('indexOfData', indexOfData);
+
         this.remoteFiles[this.currFileIdx].closeSync();
         this.handleCommand(this.commands[this.currFileIdx], this.currFileIdx);
         this.currFileIdx++;
+
+        if (buffer.length - (indexOfData ?? 0) - appendedData) {
+          L.trace('more commands in chunk');
+
+          this.parseChunk(buffer.subarray((indexOfData ?? 0) + appendedData));
+          return;
+        }
       }
     }
   }
