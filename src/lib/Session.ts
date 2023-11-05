@@ -97,7 +97,7 @@ class Session extends EventEmitter {
     L.trace('appendedData', appendedData);
     L.trace('buffer.length', buffer.length);
 
-    if (this.remoteFiles[this.currentId].isReady()) {
+    if (this.remoteFiles[this.currentId].finished) {
       L.trace('remoteFile ready');
 
       this.remoteFiles[this.currentId].closeSync();

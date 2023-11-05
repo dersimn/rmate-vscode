@@ -169,11 +169,6 @@ class RemoteFile {
     return this.dataSize === null;
   }
 
-  isReady() : boolean {
-    L.trace('isReady', this.writtenDataSize === this.dataSize);
-    return this.writtenDataSize === this.dataSize;
-  }
-
   get waitingForData() : boolean {
     return this._waitingForData;
   }
