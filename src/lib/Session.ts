@@ -79,13 +79,14 @@ class Session extends EventEmitter {
 
         if (key === 'data') {
           this.remoteFiles[this.currentId].setDataSize(parseInt(value, 10));
-
-          this.remoteFiles[this.currentId].setToken(this.remoteFiles[this.currentId].getVariable('token'));
-          this.remoteFiles[this.currentId].setDisplayName(this.remoteFiles[this.currentId].getVariable('display-name'));
           this.remoteFiles[this.currentId].initialize();
 
           // At this point buffer is filled with data
           break;
+        } else if (key === 'token') {
+          this.remoteFiles[this.currentId].setToken(value);
+        } else if (key === 'display-name') {
+          this.remoteFiles[this.currentId].setDisplayName(value);
         } else {
           this.remoteFiles[this.currentId].setVariable(key, value);
         }
