@@ -146,8 +146,9 @@ class RemoteFile {
   set dataSize(dataSize : number) {
     L.trace('set dataSize', dataSize);
     if (this._dataSize === null) {
-      L.error('set dataSize - already set');
       this._dataSize = dataSize;
+    } else {
+      L.error('set dataSize has already been set');
     }
   }
 
