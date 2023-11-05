@@ -223,7 +223,27 @@ class Session extends EventEmitter {
     this.socket.write('close\n');
     this.socket.write(`token: ${remoteFile.token}\n\n`);
 
+    // Clean up VS Code ressources
     remoteFile.subscriptions.forEach((disposable : vscode.Disposable) => disposable.dispose());
+
+    // Close Tabs in VS Code
+    const tabs: vscode.Tab[] = vscode.window.tabGroups.all.map(tg => tg.tabs).flat();
+    L.trace('openTabs', tabs.length);
+    
+    const openFilesInTabs = tabs.filter(tab => tab.input instanceof vscode.TabInputText).map(tab => (tab.input as vscode.TabInputText).uri.path);
+    L.trace('openFiles', openFilesInTabs);
+    
+    const openTabsWithOurFiles: vscode.Tab[] = tabs.filter(tab => {
+      if (!(tab.input instanceof vscode.TabInputText)) {
+        return false;
+      }
+
+      return tab.input.uri.path === remoteFile.localFilePath;
+    });
+    for (const ourTab of openTabsWithOurFiles) {
+      L.trace('closing tab for', (ourTab.input as vscode.TabInputText).uri.path);
+      vscode.window.tabGroups.close(ourTab);
+    }
 
     // Remove RemoteFile from Array of active Elements
     this.remoteFiles.splice(remoteFileIdx, 1);
