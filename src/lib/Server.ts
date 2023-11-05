@@ -34,7 +34,6 @@ class Server extends EventEmitter {
     L.trace('onServerConnection');
 
     var session = new Session(socket);
-    session.send('VSCode ' + 1);
 
     this.sessions.add(session);
     session.on('close', () => {

@@ -24,6 +24,8 @@ class Session extends EventEmitter {
 
     this.socket.on('data', this.onSocketData.bind(this));
     this.socket.on('close', this.onSocketClose.bind(this));
+
+    this.socket.write('VSCode 1\n');
   }
 
   onSocketData(chunk : Buffer) {
@@ -185,19 +187,11 @@ class Session extends EventEmitter {
     }
   }
 
-  send(cmd : string) {
-    L.trace('send', cmd);
-
-    if (this.isOnline()) {
-      this.socket.write(cmd + '\n');
-    }
-  }
-
   save(remoteFileIdx : number) {
     L.trace('save');
     let remoteFile = this.remoteFiles[remoteFileIdx];
 
-    if (!this.isOnline()) {
+    if (!this.online) {
       L.error('NOT online');
       vscode.window.showErrorMessage(`Error saving ${remoteFile.remoteBaseName} to ${remoteFile.remoteHost}`);
       return;
@@ -207,21 +201,20 @@ class Session extends EventEmitter {
 
     var buffer = remoteFile.readFileSync();
 
-    this.send('save');
-    this.send(`token: ${remoteFile.token}`);
-    this.send('data: ' + buffer.length);
+    this.socket.write('save\n');
+    this.socket.write(`token: ${remoteFile.token}\n`);
+    this.socket.write('data: ' + buffer.length + '\n');
     this.socket.write(buffer);
-    this.send('');
+    this.socket.write('\n');
   }
 
   close() {
     L.trace('close');
 
-    if (this.isOnline()) {
+    if (this.online) {
       this.online = false;
 
-      this.send('close');
-      this.send('');
+      this.socket.write('close\n\n');
       
       this.emit('close');
 
@@ -229,13 +222,6 @@ class Session extends EventEmitter {
     }
 
     this.subscriptions.forEach((disposable : vscode.Disposable) => disposable.dispose());
-  }
-
-  isOnline() {
-    L.trace('isOnline');
-
-    L.debug('isOnline?', this.online);
-    return this.online;
   }
 }
 
