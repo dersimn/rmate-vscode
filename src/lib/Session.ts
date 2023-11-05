@@ -98,7 +98,7 @@ class Session extends EventEmitter {
       L.trace('remoteFile ready');
 
       this.commands[this.currentId].remoteFile.closeSync();
-      this.handleCommand(this.currentId);
+      this.openInEditor(this.currentId);
       this.currentId++;
 
       if (buffer.length > appendedData) {
@@ -107,18 +107,6 @@ class Session extends EventEmitter {
         // pass remaining buffer (minus '\n' at the end)
         this.parseChunk(buffer.subarray(appendedData + 1));
       }
-    }
-  }
-
-  handleCommand(remoteFileIdx : number) {
-    L.trace('handleCommand');
-    // L.trace('remoteFileIdx', remoteFileIdx);
-    L.trace('this.commands[remoteFileIdx].name', this.commands[remoteFileIdx].name);
-
-    switch (this.commands[remoteFileIdx].name) {
-      case 'open':
-        this.handleOpen(remoteFileIdx);
-        break;
     }
   }
 
@@ -191,11 +179,6 @@ class Session extends EventEmitter {
       textEditor.revealRange(new vscode.Range(line, 0, line, 0), vscode.TextEditorRevealType.InCenter);
       textEditor.selection = new vscode.Selection(new vscode.Position(line,0), new vscode.Position(line,0));
     }
-  }
-
-  handleOpen(remoteFileIdx : number) {
-    L.trace('handleOpen', remoteFileIdx);
-    this.openInEditor(remoteFileIdx);
   }
 
   send(cmd : string) {
