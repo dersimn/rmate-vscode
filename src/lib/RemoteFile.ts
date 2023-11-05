@@ -17,7 +17,7 @@ class RemoteFile {
   remoteHost : string;
   remoteBaseName : string;
 
-  fd : number;
+  private fileDescriptor : number | null = null;
 
   private _waitingForData : boolean = false;
 
@@ -104,13 +104,16 @@ class RemoteFile {
 
   openSync() {
     L.trace('openSync');
-    this.fd = fs.openSync(this.getLocalFilePath(), 'w');
+    this.fileDescriptor = fs.openSync(this.getLocalFilePath(), 'w');
   }
 
   closeSync() {
     L.trace('closeSync');
-    fs.closeSync(this.fd);
-    this.fd = null;
+    if (this.fileDescriptor === null) {
+      throw new Error('trying to close a non-existing fileDescriptor');
+    }
+    fs.closeSync(this.fileDescriptor);
+    this.fileDescriptor = null;
   }
 
   initialize() {
@@ -123,9 +126,9 @@ class RemoteFile {
 
   writeSync(buffer : any, offset : number, length : number) {
     L.trace('writeSync');
-    if (this.fd) {
+    if (this.fileDescriptor) {
       L.debug('writing data');
-      fs.writeSync(this.fd, buffer, offset, length, undefined);
+      fs.writeSync(this.fileDescriptor, buffer, offset, length, undefined);
     }
   }
 
