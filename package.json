@@ -1,11 +1,16 @@
 {
-  "name": "remote-vscode",
-  "displayName": "Remote VSCode",
-  "description": "A package that implements the Textmate's 'rmate' feature for VSCode.",
-  "version": "1.2.0-bespoke",
-  "publisher": "rafaelmaiolla",
+  "name": "rmate-vscode",
+  "displayName": "RMate for VS Code",
+  "description": "A package that provides a server compatible with TextMate's `rmate` CLI.",
+  "version": "1.0.0",
+  "publisher": "dersimn",
   "license": "MIT",
-  "author": "Rafael Maiolla <rafaelmaiolla@gmail.com>",
+  "author": "Simon Christmann <simon@christmann.email>",
+  "contributors": [
+    "Rafael Maiolla <rafaelmaiolla@gmail.com>",
+    "Kevin Yarosh (https://github.com/ComfyDust)",
+    "Roy Ivy III (https://github.com/rivy)"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/rafaelmaiolla/remote-vscode.git"
@@ -18,21 +23,20 @@
   },
   "keywords": [
     "rmate",
-    "Remote",
     "Visual Studio Code",
-    "VSCode"
+    "VS Code"
   ],
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Remote VSCode configuration",
+      "title": "RMate for VS Code configuration",
       "properties": {
         "remote.port": {
           "type": "number",
@@ -59,23 +63,23 @@
     "commands": [
       {
         "command": "extension.startServer",
-        "title": "Remote: Start Server"
+        "title": "rmate: Start Server"
       },
       {
         "command": "extension.stopServer",
-        "title": "Remote: Stop Server"
+        "title": "rmate: Stop Server"
       },
       {
         "command": "extension.restartServer",
-        "title": "Remote: Restart Server"
+        "title": "rmate: Restart Server"
       },
       {
         "command": "extension.closeDocument",
-        "title": "Remote: Close Document"
+        "title": "rmate: Close Document"
       },
       {
         "command": "extension.closeAllDocuments",
-        "title": "Remote: Close all open Documents"
+        "title": "rmate: Close all open Documents"
       }
     ]
   },
