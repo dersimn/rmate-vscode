@@ -12,8 +12,7 @@ class StatusBarItem {
     L.trace('constructor');
 
     this.item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-    this.item.color = new vscode.ThemeColor('statusBar.foreground');
-    this.item.text = '$(rss)';
+    this.item.text = '$(vm-outline)';
   }
 
   public get server() {
@@ -48,24 +47,24 @@ class StatusBarItem {
   onRestarting() {
     L.trace('onRestarting');
 
-    this.item.tooltip = 'Remote: Restarting server...';
-    this.item.color = new vscode.ThemeColor('statusBar.foreground');
+    this.item.tooltip = 'rmate: Restarting server...';
+    this.item.text = '$(vm-connect)';
     this.item.show();
   }
 
   onStarting() {
     L.trace('onStarting');
 
-    this.item.tooltip = 'Remote: Starting server...';
-    this.item.color = new vscode.ThemeColor('statusBar.foreground');
+    this.item.tooltip = 'rmate: Starting server...';
+    this.item.text = '$(vm-connect)';
     this.item.show();
   }
 
   onReady() {
     L.trace('onReady');
 
-    this.item.tooltip = 'Remote: Server ready.';
-    this.item.color = new vscode.ThemeColor('statusBar.foreground');
+    this.item.tooltip = 'rmate: Server ready.';
+    this.item.text = '$(vm-active)';
     this.item.show();
   }
 
@@ -74,21 +73,20 @@ class StatusBarItem {
 
     if (e.code === 'EADDRINUSE') {
       L.debug('onError', 'EADDRINUSE');
-      this.item.tooltip = 'Remote error: Port already in use.';
+      this.item.tooltip = 'rmate error: Port already in use.';
 
     } else {
-      this.item.tooltip = 'Remote error: Failed to start server.';
+      this.item.tooltip = 'rmate error: Failed to start server.';
     }
 
-    this.item.color = new vscode.ThemeColor('errorForeground');
+    this.item.text = '$(vm-outline)';
     this.item.show();
   }
 
   onStopped() {
     L.trace('onStopped');
 
-    this.item.tooltip = 'Remote: Server stopped.';
-    this.item.color = new vscode.ThemeColor('statusBar.foreground');
+    this.item.tooltip = 'rmate: Server stopped.';
     this.item.hide();
   }
 }
