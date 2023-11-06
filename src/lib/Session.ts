@@ -165,12 +165,15 @@ class Session extends EventEmitter {
         // If you change the textDocument language, it will close and re-open the same textDocument, so we add
         // a timeout to make sure it is really being closed before close the socket.
         this.closeTimeout = setTimeout(() => {
+          L.trace('onDidCloseTextDocument close Timeout triggered');
           this.close(remoteFileIdx);
         }, 2);
       }
     }));
 
     this.remoteFiles[remoteFileIdx].subscriptions.push(vscode.workspace.onDidOpenTextDocument((openedTextDocument : vscode.TextDocument) => {
+      L.trace('onDidOpenTextDocument', openedTextDocument);
+
       // eslint-disable-next-line eqeqeq
       if (openedTextDocument == textDocument) {
         this.closeTimeout  && clearTimeout(this.closeTimeout);
