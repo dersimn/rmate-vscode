@@ -75,13 +75,23 @@
       },
       {
         "command": "extension.closeDocument",
-        "title": "rmate: Close Document"
+        "title": "rmate: Close Document",
+        "icon": "$(plug)"
       },
       {
         "command": "extension.closeAllDocuments",
         "title": "rmate: Close all open Documents"
       }
-    ]
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "extension.closeDocument",
+          "group": "navigation",
+          "when": "rmate.activeEditorIsOurs"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

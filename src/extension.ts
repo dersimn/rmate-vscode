@@ -73,6 +73,26 @@ export function activate(context: vscode.ExtensionContext) {
       restartServer();
     }
   }));
+
+  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
+    L.trace('onDidChangeActiveTextEditor');
+    const currentEditorFilePath = editor?.document.uri.path;
+    L.trace('currentEditorFilePath', currentEditorFilePath)
+
+    if (server?.sessions && currentEditorFilePath) {
+      const ourFiles = [...server?.sessions]
+                        .map(session => session.remoteFiles).flat()
+                        .map(remoteFile => remoteFile.localFilePath);
+      L.trace('ourFiles', ourFiles);
+
+      const currentEditorIsOurs = ourFiles.includes(currentEditorFilePath);
+      if (currentEditorIsOurs) {
+        vscode.commands.executeCommand('setContext', 'rmate.activeEditorIsOurs', true);
+        return;
+      }
+    }
+    vscode.commands.executeCommand('setContext', 'rmate.activeEditorIsOurs', false);
+  }));
 }
 
 export function deactivate() {
