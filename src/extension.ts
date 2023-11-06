@@ -124,7 +124,7 @@ async function closeDocument() {
   });
   L.trace('closeDocument > openFiles', openFiles);
 
-  const selected = await vscode.window.showQuickPick(openFiles);
+  const selected = await vscode.window.showQuickPick(openFiles, {title: 'Open RMate Sessions:'});
   L.trace('closeDocument > selected', selected);
 
   selected?.session.closeAll();
