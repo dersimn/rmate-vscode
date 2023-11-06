@@ -42,6 +42,7 @@ class StatusBarItem {
     server.on('ready', this.onReady.bind(this));
     server.on('error', this.onError.bind(this));
     server.on('stopped', this.onStopped.bind(this));
+    server.on('sessionCount', this.onSessionCount.bind(this));
   }
 
   onRestarting() {
@@ -88,6 +89,16 @@ class StatusBarItem {
 
     this.item.tooltip = 'rmate: Server stopped.';
     this.item.hide();
+  }
+
+  onSessionCount(count : number) {
+    if (count) {
+      this.item.tooltip = `rmate: ${count} open Session${count > 1 ? 's' : ''}.`;
+      this.item.text = '$(vm-running)';
+    } else {
+      this.item.tooltip = 'rmate: Server ready.';
+      this.item.text = '$(vm-active)';
+    }
   }
 }
 

@@ -36,8 +36,11 @@ class Server extends EventEmitter {
     var session = new Session(socket);
 
     this.sessions.add(session);
+    this.emit('sessionCount', this.sessions.size);
+
     session.on('close', () => {
       this.sessions.delete(session);
+      this.emit('sessionCount', this.sessions.size);
     });
   }
 
