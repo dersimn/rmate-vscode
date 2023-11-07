@@ -166,7 +166,7 @@ class Session extends EventEmitter {
         // a timeout to make sure it is really being closed before close the socket.
         this.closeTimeout = setTimeout(() => {
           L.trace('onDidCloseTextDocument close Timeout triggered');
-          this.close(remoteFileIdx);
+          this.close(this.remoteFiles[remoteFileIdx]);
         }, 2);
       }
     }));
@@ -213,9 +213,8 @@ class Session extends EventEmitter {
     statusBarMessage.dispose();
   }
 
-  close(remoteFileIdx : number) {
+  close(remoteFile : RemoteFile) {
     L.trace('close');
-    let remoteFile = this.remoteFiles[remoteFileIdx];
 
     if (!this.online) {
       L.error('NOT online');
@@ -249,7 +248,7 @@ class Session extends EventEmitter {
     }
 
     // Remove RemoteFile from Array of active Elements
-    this.remoteFiles.splice(remoteFileIdx, 1);
+    this.remoteFiles.splice(this.remoteFiles.indexOf(remoteFile), 1);
 
     if (this.remoteFiles.length === 0) {
       this.socket.end();
@@ -262,7 +261,7 @@ class Session extends EventEmitter {
 
     const count = this.remoteFiles.length;
     for (let i = 0; i < count; i++) {
-      this.close(0);  // close function modifies the array (with .splice), always remove 0 here
+      this.close(this.remoteFiles[0]);  // close function modifies the array (with .splice), always remove 0 here
     }
   }
 }
