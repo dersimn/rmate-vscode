@@ -130,7 +130,7 @@ async function closeDocument() {
   selected?.session.closeAll();
 }
 
-async function closeAllDocuments() {
+function closeAllDocuments() {
   if (!server) {
     vscode.window.showErrorMessage('Server is not started.');
     return;
