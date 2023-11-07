@@ -78,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
     L.trace('onDidChangeActiveTextEditor');
     const currentEditorFilePath = editor?.document.uri.path;
-    L.trace('currentEditorFilePath', currentEditorFilePath)
+    L.trace('currentEditorFilePath', currentEditorFilePath);
 
     if (server?.sessions && currentEditorFilePath) {
       const ourFiles = [...server?.sessions]
