@@ -75,18 +75,22 @@
       },
       {
         "command": "extension.closeDocument",
-        "title": "rmate: Close Document",
-        "icon": "$(plug)"
+        "title": "rmate: Close Document"
       },
       {
         "command": "extension.closeAllDocuments",
         "title": "rmate: Close all open Documents"
+      },
+      {
+        "command": "extension.closeActiveEditor",
+        "title": "rmate: Close Editor Tab in Focus",
+        "icon": "$(debug-disconnect)"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "extension.closeDocument",
+          "command": "extension.closeActiveEditor",
           "group": "navigation",
           "when": "rmate.activeEditorIsOurs"
         }

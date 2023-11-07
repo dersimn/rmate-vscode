@@ -57,6 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('extension.restartServer', restartServer));
   context.subscriptions.push(vscode.commands.registerCommand('extension.closeDocument', closeDocument));
   context.subscriptions.push(vscode.commands.registerCommand('extension.closeAllDocuments', closeAllDocuments));
+  context.subscriptions.push(vscode.commands.registerCommand('extension.closeActiveEditor', closeActiveEditor));
 
   context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
     L.trace('onDidChangeConfiguration');
@@ -138,5 +139,17 @@ function closeAllDocuments() {
 
   for (const session of server.sessions) {
     session.closeAll();
+  }
+}
+
+function closeActiveEditor() {
+  const activeEditorFilePath = vscode.window.activeTextEditor?.document.uri.path;
+
+  for (const session of server?.sessions ?? []) {
+    for (const remoteFile of session.remoteFiles) {
+      if (remoteFile.localFilePath === activeEditorFilePath) {
+        session.close(remoteFile);
+      }
+    }
   }
 }
