@@ -72,9 +72,8 @@ class Session extends EventEmitter {
         }
 
         // Lines contain data like: "key: value\n"
-        const key = line.substring(0, line.indexOf(':'));
+        const [key, value] = line.split(': ', 2);
         L.trace('key', key);
-        const value = line.substring(line.indexOf(':') + 2);
         L.trace('value', value);
 
         if (key === 'data') {
