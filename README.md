@@ -5,10 +5,12 @@ A package that implements the TextMate's 'rmate' feature for Visual Studio Code.
 This is a fork of [rafaelmaiolla/remote-vscode](https://github.com/rafaelmaiolla/remote-vscode) fixing some features that probably almost nobody noticed they exist, for e.g.:
 
 - Open multiple files at once with `rmate file1 file2`
-- Closing files with `-w` flag which is useful for using rmate in `EDITOR`-env variable.
+- Closing files with `-w` flag which is useful for using rmate in `EDITOR`-env variable.  
   Example: `EDITOR='rmate -w' sudoedit somefile`
+
   Due to a limitation in VS Code API (currently there's no API that would notify our Extetnsion when the user closed a Tab) we implemented a buttton here to alternatively close the Tab and the rmate-Session behind:  
   ![](docs/close-document-buttton.png)
+  
   Alternatively there's a command for closing single Sessions or all Sessions at once:  
   ![](docs/close-dialog.png)
 
