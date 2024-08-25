@@ -1,11 +1,17 @@
-# Remote VSCode
+# RMate for VS Code
 
-[![Build Status](https://travis-ci.org/rafaelmaiolla/remote-vscode.svg?branch=master)](https://travis-ci.org/rafaelmaiolla/remote-vscode)
-[![Known Vulnerabilities](https://snyk.io/test/github/rafaelmaiolla/remote-vscode/badge.svg)](https://snyk.io/test/github/rafaelmaiolla/remote-vscode)
-[![Dependency Status](https://david-dm.org/rafaelmaiolla/remote-vscode.svg)](https://david-dm.org/rafaelmaiolla/remote-vscode)
-[![devDependency Status](https://david-dm.org/rafaelmaiolla/remote-vscode/dev-status.svg)](https://david-dm.org/rafaelmaiolla/remote-vscode#info=devDependencies)
+A package that implements the TextMate's 'rmate' feature for Visual Studio Code.
 
-A package that implements the Textmate's 'rmate' feature for VSCode.
+This is a fork of [rafaelmaiolla/remote-vscode](https://github.com/rafaelmaiolla/remote-vscode) fixing some features that probably almost nobody noticed they exist, for e.g.:
+
+- Open multiple files at once with `rmate file1 file2`
+- Closing files with `-w` flag which is useful for using rmate in `EDITOR`-env variable.
+  Example: `EDITOR='rmate -w' sudoedit somefile`
+  Due to a limitation in VS Code API (currently there's no API that would notify our Extetnsion when the user closed a Tab) we implemented a buttton here to alternatively close the Tab and the rmate-Session behind:  
+  ![](docs/close-document-buttton.png)
+  Alternatively there's a command for closing single Sessions or all Sessions at once:  
+  ![](docs/close-dialog.png)
+
 
 ## Installation
 
@@ -20,37 +26,37 @@ A package that implements the Textmate's 'rmate' feature for VSCode.
  - Node.js version: https://github.com/jrnewell/jmate
  - Golang version: https://github.com/mattn/gomate
 
+
 ## Usage
 
-* Configure the following in VS Code User Settings:
-  ```javascript
-  //-------- Remote VSCode configuration --------
+* Configure the extension in VS Code Settings:
 
-  // Port number to use for connection.
-  "remote.port": 52698,
+* Start the server in the command palette - Press <kbd>F1</kbd> or <kbd>⌘ Command</kbd> + <kbd>⇧ Shift</kbd> + <kbd>P</kbd> and type `rmate: Start server`, and press <kbd>⏎ Enter</kbd> to start the server.
+  If successfully started you'll see a symbol in Status Bar:
+  ![](docs/statusbar.png)
 
-  // Launch the server on start up.
-  "remote.onstartup": true,
-
-  // Address to listen on.
-  "remote.host": "127.0.0.1",
-
-  // If set to true, error for remote.port already in use won't be shown anymore.
-  "remote.dontShowPortAlreadyInUseError": false,
-  ```
-
-* Start the server in the command palette - Press F1 and type `Remote: Start server`, and press `ENTER` to start the server.
-  You may see a `Starting server` at the status bar in the bottom.
-
-* Create an ssh tunnel
+* Login to your remote server with a remote port tunnel
   ```bash
   ssh -R 52698:127.0.0.1:52698 user@example.org
+  ```
+  
+  Or configure SSH to always create a tunnel by editing `~/.ssh/config`:
+  ```
+  Host *
+    RemoteForward 52698 127.0.0.1:52698
   ```
 
 * Go to the remote system and run
   ```bash
-  rmate -p 52698 file
+  rmate file1 file2
   ```
+
+* If you want to use rmate in `EDITOR` variable, you can use it like this:
+  ```
+  EDITOR='rmate -w' sudoedit important_file
+  ```
+
+
 
 ## License
 [MIT](LICENSE.txt)
