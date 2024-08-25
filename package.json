@@ -2,7 +2,7 @@
   "name": "rmate-vscode",
   "displayName": "RMate for VS Code",
   "description": "A package that provides a server compatible with TextMate's `rmate` CLI.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "dersimn",
   "license": "MIT",
   "author": "Simon Christmann <simon@christmann.email>",

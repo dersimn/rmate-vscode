@@ -77,13 +77,13 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
     L.trace('onDidChangeActiveTextEditor');
-    const currentEditorFilePath = editor?.document.uri.path;
+    const currentEditorFilePath = editor?.document.uri.fsPath?.toLowerCase();  // On Windows uri.path is like /c:/Users/Simon/AppData/Local/Temp/rmate-vscode/4WFxHSBiGf/testserver/test
     L.trace('currentEditorFilePath', currentEditorFilePath);
 
     if (server?.sessions && currentEditorFilePath) {
       const ourFiles = [...server?.sessions]
                         .map(session => session.remoteFiles).flat()
-                        .map(remoteFile => remoteFile.localFilePath);
+                        .map(remoteFile => remoteFile.localFilePath.toLowerCase());  // On Windows localFilePath is like C:\\Users\\Simon\\AppData\\Local\\Temp\\rmate-vscode\\4WFxHSBiGf\\tetstserver\\test
       L.trace('ourFiles', ourFiles);
 
       const currentEditorIsOurs = ourFiles.includes(currentEditorFilePath);
@@ -143,11 +143,14 @@ function closeAllDocuments() {
 }
 
 function closeActiveEditor() {
-  const activeEditorFilePath = vscode.window.activeTextEditor?.document.uri.path;
+  const activeEditorFilePath = vscode.window.activeTextEditor?.document.uri.fsPath?.toLowerCase();
+  console.log('activeEditorFilePath', activeEditorFilePath);
 
   for (const session of server?.sessions ?? []) {
     for (const remoteFile of session.remoteFiles) {
-      if (remoteFile.localFilePath === activeEditorFilePath) {
+      console.log('remoteFile.localFilePath', remoteFile.localFilePath);
+
+      if (remoteFile.localFilePath?.toLowerCase() === activeEditorFilePath) {
         session.close(remoteFile);
       }
     }

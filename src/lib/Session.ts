@@ -239,7 +239,7 @@ class Session extends EventEmitter {
         return false;
       }
 
-      return tab.input.uri.path === remoteFile.localFilePath;
+      return tab.input.uri.fsPath?.toLowerCase() === remoteFile.localFilePath?.toLowerCase();
     });
     for (const ourTab of openTabsWithOurFiles) {
       L.trace('closing tab for', (ourTab.input as vscode.TabInputText).uri.path);
